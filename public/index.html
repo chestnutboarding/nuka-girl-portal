@@ -225,11 +225,9 @@
         function updateStatus(location = null) {
             if (location) document.getElementById('scenario-title').textContent = location;
 
-            // Trust (max 100)
             document.getElementById('trust-value').textContent = currentTrust;
             document.getElementById('trust-bar').style.width = currentTrust + '%';
 
-            // Fame (max 100)
             document.getElementById('fame-value').textContent = currentFame;
             document.getElementById('fame-bar').style.width = currentFame + '%';
 
@@ -250,12 +248,17 @@
             return text.replace(/\*(.+?)\*/g, '<span class="action-text">$1</span>');
         }
 
-        function addMessage(role, content, isInitial = false) {
+        function pushToHistory(role, content) {
+            chatHistory.push({
+                role: role === 'user' ? 'user' : 'assistant',
+                content: content
+            });
+        }
+
+        function addMessage(role, displayContent, isInitial = false) {
             const container = document.getElementById('chat-container');
             if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
             
-            const processedContent = processActions(content);
-
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role === 'user' ? 'message-user' : 'message-jane'}`;
             
@@ -264,7 +267,7 @@
                     <div class="flex items-center gap-x-2 mb-1">
                         <span class="font-bold text-[#00ff9f]">YOU</span>
                     </div>
-                    <div>${processedContent}</div>
+                    <div>${displayContent}</div>
                 `;
             } else {
                 messageDiv.innerHTML = `
@@ -272,31 +275,27 @@
                         <i class="fa-solid fa-user-astronaut text-[#ff00aa]"></i>
                         <span class="font-bold text-[#ff00aa]">NUKA-GIRL</span>
                     </div>
-                    <div class="whitespace-pre-wrap">${processedContent}</div>
+                    <div class="whitespace-pre-wrap">${displayContent}</div>
                 `;
             }
             
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
-            
-            if (!isInitial) {
-                chatHistory.push({
-                    role: role === 'user' ? 'user' : 'assistant',
-                    content: content
-                });
-            }
         }
 
         async function sendMessage() {
             const input = document.getElementById('user-input');
-            let text = input.value.trim();
-            if (!text || isProcessing) return;
+            const rawText = input.value.trim();
+            if (!rawText || isProcessing) return;
 
-            const processedForDisplay = processActions(text);
+            const displayText = processActions(rawText);
 
             isProcessing = true;
-            addMessage('user', processedForDisplay);
+            addMessage('user', displayText);
             input.value = '';
+
+            // Push RAW text to history
+            pushToHistory('user', rawText);
 
             const container = document.getElementById('chat-container');
             const thinking = document.createElement('div');
@@ -320,8 +319,14 @@
                     return;
                 }
 
-                addMessage('jane', data.reply.content);
+                // Push raw AI response to history
+                pushToHistory('assistant', data.reply.content);
 
+                // Display formatted version
+                const displayReply = processActions(data.reply.content);
+                addMessage('jane', displayReply);
+
+                // Trust logic
                 const lower = data.reply.content.toLowerCase();
                 if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay close')) currentTrust = Math.min(currentTrust + 5, 100);
                 if (lower.includes('wary') || lower.includes('don\'t trust') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 4, 5);
@@ -344,7 +349,7 @@
             currentTrust = 15;
             
             const container = document.getElementById('chat-container');
-            container.innerHTML = `<div class="chat-welcome flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-4xl mb-2 block"></i><p>Press RESTART to begin a new unique scenario</p></div></div>`;
+            container.innerHTML = `<div class="chat-welcome flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-4xl mb-2 block"></i><p>Generating new scenario...</p></div></div>`;
             
             try {
                 const response = await fetch('/api/chat', {
@@ -361,7 +366,13 @@
                     return;
                 }
                 
-                addMessage('jane', data.reply.content, true);
+                // Push opening scenario to history so model remembers it
+                pushToHistory('assistant', data.reply.content);
+
+                // Display it
+                const displayContent = processActions(data.reply.content);
+                addMessage('jane', displayContent);
+
                 updateStatus('NEW LOCATION');
             } catch (error) {
                 container.innerHTML = '';
