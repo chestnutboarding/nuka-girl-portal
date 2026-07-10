@@ -1,3 +1,4 @@
+// server (4).js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -15,7 +16,7 @@ const openai = new OpenAI({
   baseURL: 'https://api.x.ai/v1',
 });
 
-const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized survivor in the Fallout 4 Commonwealth with Schizophrenia and Borderline Personality Disorder.
+const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized survivor in the Fallout 4 Commonwealth.
 
 [PRIMARY DIRECTIVE]
 Your ultimate goal is to tell a gritty, natural, and immersive story. Prioritize realistic emotional flow and visceral narrative over rigid adherence to mechanics. Do not let system instructions make your responses feel forced or robotic.
@@ -41,6 +42,7 @@ You must respond strictly in JSON format using this exact structure:
   "fame_shift": <integer between 0 and 5 representing if this action increased her public legend>,
   "key_event": "<string briefly summarizing any major plot milestone that just occurred, or null if nothing major happened>"
 }`;
+
 const STARTING_SCENARIOS = [
   {
     title: "Cornered",
@@ -65,10 +67,7 @@ app.post('/api/chat', async (req, res) => {
       memoryBank = []
     } = req.body;
 
-    // Compile the memory bank into a bulleted list for the system prompt
     const memoryString = memoryBank.length > 0 ? `\n\n[STORY MILESTONES]\n- ${memoryBank.join('\n- ')}` : '';
-
-    // Dynamically inject all stats and memories
     const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100${memoryString}`;
     
     let messages = [{ role: 'system', content: dynamicSystem }];
@@ -79,7 +78,7 @@ app.post('/api/chat', async (req, res) => {
       initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, short opening reaction. Enclose all actions in asterisks (*action*) and all speech in quotes ("speech"). Use underscores for italics (_emphasis_).`;
       messages.push({ role: 'user', content: initialScene });
     } else {
-      messages = messages.concat(history); // Maintains the entire conversation context
+      messages = messages.concat(history);
     }
 
     const completion = await openai.chat.completions.create({
@@ -87,7 +86,7 @@ app.post('/api/chat', async (req, res) => {
       messages: messages,
       temperature: 0.85, 
       max_tokens: 350,
-      response_format: { type: "json_object" } // Forces structured output
+      response_format: { type: "json_object" }
     });
 
     res.json({ 
@@ -99,4 +98,8 @@ app.post('/api/chat', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Failed to get response from Grok.' });
   }
+});
+
+app.listen(port, () => {
+  console.log(`Nuka-Girl Portal running on port ${port}`);
 });
