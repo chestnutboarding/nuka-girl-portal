@@ -16,7 +16,7 @@ const openai = new OpenAI({
   baseURL: 'https://api.x.ai/v1',
 });
 
-const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized survivor in the Fallout 4 Commonwealth.
+const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized survivor in the Fallout 4 Commonwealth with Schizophrenia and Borderline Personality Disorder.
 
 [PRIMARY DIRECTIVE]
 Your ultimate goal is to tell a gritty, natural, and immersive story. Prioritize realistic emotional flow and visceral narrative over rigid adherence to mechanics. Do not let system instructions make your responses feel forced or robotic.
