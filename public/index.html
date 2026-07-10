@@ -7,13 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
-        
         body {
             background-color: #0a0f0a;
             color: #00ff9f;
-            font-family: 'VT323', monospace;
-            font-size: 23px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 20px;
             line-height: 1.5;
         }
         
@@ -32,7 +30,7 @@
             border: 2px solid #ff4444;
             color: #ff4444;
             transition: all 0.2s;
-            font-size: 20px;
+            font-size: 19px;
         }
         
         .fallout-btn {
@@ -40,23 +38,23 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             transition: all 0.2s;
-            font-size: 20px;
+            font-size: 19px;
         }
         
         .terminal-input {
             background-color: #0a0f0a;
             border: 2px solid #00ff9f;
             color: #00ff9f;
-            font-family: 'VT323', monospace;
-            font-size: 21px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 19px;
         }
         
         .message {
-            margin-bottom: 18px;
-            padding: 14px 18px;
+            margin-bottom: 16px;
+            padding: 13px 16px;
             border-radius: 4px;
             line-height: 1.5;
-            font-size: 22px;
+            font-size: 20px;
         }
         
         .message-user {
@@ -73,12 +71,18 @@
         
         .action-text {
             color: #aaffcc;
-            opacity: 0.82;
+            opacity: 0.85;
             font-style: italic;
         }
         
         .sidebar-text {
-            font-size: 20px;
+            font-size: 18px;
+        }
+        
+        .retro-header {
+            font-family: 'VT323', monospace;
+            font-size: 42px;
+            text-shadow: 0 0 8px #00ff9f;
         }
     </style>
 </head>
@@ -89,7 +93,7 @@
             <div class="flex items-center gap-x-3">
                 <i class="fa-solid fa-radiation text-4xl text-[#ff00aa]"></i>
                 <div>
-                    <h1 class="text-4xl font-bold tracking-[3px] fallout-text">NUKA-GIRL PROTOCOL</h1>
+                    <h1 class="retro-header tracking-[3px]">NUKA-GIRL PROTOCOL</h1>
                     <p class="text-sm text-[#ff00aa] -mt-1">v2.0 • POWERED BY GROK</p>
                 </div>
             </div>
@@ -236,7 +240,6 @@
             }
         }
 
-        // Function to process *action* text into styled spans
         function processActions(text) {
             return text.replace(/\*(.+?)\*/g, '<span class="action-text">$1</span>');
         }
@@ -245,7 +248,6 @@
             const container = document.getElementById('chat-container');
             if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
             
-            // Process asterisks for both user and Jane messages
             const processedContent = processActions(content);
 
             const messageDiv = document.createElement('div');
@@ -284,7 +286,6 @@
             let text = input.value.trim();
             if (!text || isProcessing) return;
 
-            // Process asterisks before sending
             const processedForDisplay = processActions(text);
 
             isProcessing = true;
@@ -315,7 +316,6 @@
 
                 addMessage('jane', data.reply.content);
 
-                // Trust logic
                 const lower = data.reply.content.toLowerCase();
                 if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay close')) currentTrust = Math.min(currentTrust + 5, 100);
                 if (lower.includes('wary') || lower.includes('don\'t trust') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 4, 5);
