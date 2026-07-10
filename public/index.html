@@ -3,394 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chestnut Boarding - Schedule</title>
+    <title>NUKA-GIRL PROTOCOL // v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .calendar-container {
-            position: relative;
-            padding-bottom: 75%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .calendar-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        @media (min-width: 1024px) {
-            .calendar-container {
-                padding-bottom: 600px;
-            }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
+        
         body {
-            background-image: url('https://lh3.googleusercontent.com/pw/AP1GczN12bKCXR-5TeYyl4iI5JL8_Qxzjg-ANpKP32Y-svRDcuQiuySfqcokEgYn4DTuKb-HDZBM4M8mQk_KjOViE7EX2iBF9_nnNtit5djYNAoGgcTS6bqSmmX1PumCftOH6sNOorIg0aYRflvQhTX55LYGKQ=w1234-h929-s-no-gm?authuser=0');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: #f8f9fa;
+            background-color: #0a0f0a;
+            color: #00ff9f;
+            font-family: 'VT323', monospace;
+        }
+        
+        .terminal {
+            background-color: #0a0f0a;
+            border: 2px solid #00ff9f;
+            box-shadow: 0 0 15px rgba(0, 255, 159, 0.3);
+        }
+        
+        .fallout-text {
+            text-shadow: 0 0 5px #00ff9f, 0 0 10px #00ff9f;
+        }
+        
+        .chat-container {
+            scrollbar-width: thin;
+            scrollbar-color: #00ff9f #0a0f0a;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        .message-user {
+            background-color: #1a2a1a;
+            border-left: 4px solid #00ff9f;
+            margin-left: 20%;
+        }
+        
+        .message-jane {
+            background-color: #0f1a0f;
+            border-left: 4px solid #ff00aa;
+            margin-right: 20%;
+        }
+        
+        .nuka-header {
+            background: linear-gradient(#112211, #0a0f0a);
+            border-bottom: 3px solid #00ff9f;
+        }
+        
+        .status-bar {
+            background-color: #112211;
+            border: 1px solid #00ff9f;
+        }
+        
+        .restart-btn {
+            background-color: #3a0a0a;
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            transition: all 0.2s;
+        }
+        
+        .restart-btn:hover {
+            background-color: #5a0a0a;
+            box-shadow: 0 0 15px #ff4444;
+            transform: scale(1.02);
+        }
+        
+        .fallout-btn {
+            background-color: #112211;
+            border: 2px solid #00ff9f;
+            color: #00ff9f;
+            transition: all 0.2s;
+        }
+        
+        .fallout-btn:hover {
+            background-color: #1a3a1a;
+            box-shadow: 0 0 10px #00ff9f;
+        }
+        
+        .terminal-input {
+            background-color: #0a0f0a;
+            border: 2px solid #00ff9f;
+            color: #00ff9f;
+            font-family: 'VT323', monospace;
+        }
+        
+        .terminal-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff9f;
         }
     </style>
 </head>
-<body class="text-[#3c4043] font-sans antialiased">
-
-    <!-- Navigation / Header -->
-    <nav class="bg-white/75 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex flex-col md:flex-row md:justify-between items-center gap-4">
-                <div class="flex items-center justify-center space-x-2 sm:space-x-3 flex-wrap text-center">
-                    <img src="https://i.imgur.com/bH7ESZ7.png" alt="Chestnut Boarding Logo" class="h-8 w-auto">
-                    <span class="text-base font-medium text-gray-700">Chestnut Boarding</span>
-                    <span class="text-base font-medium text-gray-400 hidden sm:inline">|</span>
-                    <a href="https://www.google.com/maps/search/?api=1&query=1914+N+Chestnut+St,+80907" target="_blank" rel="noopener noreferrer" class="text-base font-medium text-gray-600 hover:text-[#1a73e8] transition hover:underline py-2 px-1">
-                        1914 N Chestnut St 80907
-                    </a>
-                </div>
-                <div class="flex items-center justify-center space-x-3 flex-wrap">
-                    <button onclick="switchTab('schedule')" id="nav-schedule" class="text-base font-medium text-[#1a73e8] hover:text-[#1a73e8] transition py-2 px-1">Schedule</button>
-                    <span class="text-base font-medium text-gray-400">|</span>
-                    <button onclick="switchTab('about')" id="nav-about" class="text-base font-medium text-gray-600 hover:text-[#1a73e8] transition py-2 px-1">About Us</button>
-                    <span class="text-base font-medium text-gray-400">|</span>
-                    <button onclick="switchTab('photos')" id="nav-photos" class="text-base font-medium text-gray-600 hover:text-[#1a73e8] transition cursor-pointer py-2 px-1">Photos</button>
-                    <span class="text-base font-medium text-gray-400">|</span>
-                    <button onclick="openModal()" class="text-base font-medium text-gray-600 hover:text-[#1a73e8] transition cursor-pointer py-2 px-1">Contact</button>
+<body class="min-h-screen">
+    <!-- Header -->
+    <div class="nuka-header p-4 flex items-center justify-between border-b border-[#00ff9f]">
+        <div class="flex items-center gap-x-4">
+            <div class="flex items-center gap-x-3">
+                <i class="fa-solid fa-radiation text-4xl text-[#ff00aa]"></i>
+                <div>
+                    <h1 class="text-4xl font-bold tracking-[3px] fallout-text">NUKA-GIRL PROTOCOL</h1>
+                    <p class="text-sm text-[#ff00aa] -mt-1">v2.0 • POWERED BY GROK</p>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         
-        <!-- Schedule View -->
-        <div id="scheduleView" class="block">
-            <!-- Calendar Section -->
-            <div class="bg-white/75 backdrop-blur-md p-2 sm:p-4 rounded-xl shadow-sm border border-gray-200">
-                <div class="calendar-container">
-                    <iframe 
-                        src="https://calendar.google.com/calendar/embed?src=chestnutboarding%40gmail.com&ctz=UTC&showTitle=0&showPrint=0&showTabs=1&showCalendars=0&showTz=1" 
-                        style="border-width:0" 
-                        frameborder="0" 
-                        scrolling="no">
-                    </iframe>
-                </div>
+        <div class="flex items-center gap-x-3">
+            <div class="px-4 py-1 bg-[#112211] border border-[#00ff9f] text-sm flex items-center gap-x-2">
+                <i class="fa-solid fa-wifi"></i>
+                <span>CONNECTED TO GROK-4.5</span>
             </div>
-        </div>
-
-        <!-- About Us View -->
-        <div id="aboutView" class="hidden">
-            <div class="bg-white/75 backdrop-blur-md p-8 rounded-xl shadow-sm border border-gray-200">
-                <h1 class="text-2xl sm:text-3xl font-medium text-gray-900 mb-6 border-b border-gray-100/50 pb-4">About Chestnut Boarding</h1>
-                
-                <div class="space-y-6 text-gray-700 leading-relaxed">
-                    <p class="text-lg">
-                        Licensed by the Colorado Department of Agriculture (PACFA), we provide an exclusive, boutique boarding experience entirely within our primary residence. By strictly limiting our care to a maximum of three client dogs at any time, we ensure your pet receives the personalized attention, comfort, and direct supervision they crave in a calm, home-centered environment.
-                    </p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                        <div>
-                            <h2 class="text-xl font-medium text-gray-900 mb-3 flex items-center">
-                                <svg class="h-6 w-6 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                Our Philosophy
-                            </h2>
-                            <p>We believe that boarding shouldn't be a stressful experience for pets or their owners. We treat every guest with the same care, attention, and respect that we give our own pets. From personalized feeding schedules to dedicated playtime, your pet's well-being is our top priority.</p>
-                        </div>
-                        
-                        <div>
-                            <h2 class="text-xl font-medium text-gray-900 mb-3 flex items-center">
-                                <svg class="h-6 w-6 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                Our Facility
-                            </h2>
-                            <p>Our facility is designed with safety and comfort in mind. We maintain strict hygiene protocols, comfortable environments, and secure play areas with a large back yard. We also require all guests to have up-to-date vaccinations to ensure the health of our entire boarding community.</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 bg-[#f8f9fa] p-6 sm:p-8 rounded-xl border border-gray-200">
-                        <h2 class="text-2xl font-medium text-gray-900 mb-8 text-center sm:text-left">Meet Us</h2>
-                        <div class="space-y-10">
-                            <!-- Profile 1: Tyler Helton -->
-                            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
-                                <img src="https://i.imgur.com/npXGMTF.jpeg" alt="Tyler Helton" class="w-auto max-w-[10rem] sm:max-w-[12rem] h-auto rounded-xl shadow-md border border-gray-200 flex-shrink-0">
-                                <div class="text-center sm:text-left sm:pt-1">
-                                    <h3 class="text-xl text-[#1a73e8] font-medium mb-3">Tyler Helton</h3>
-                                    <p class="text-gray-700 leading-relaxed">
-                                        Welcome! I'm Tyler, the owner and operator of Chestnut Boarding. I have a lifelong dedication to animal care and look forward to providing a safe, comfortable, and loving environment for your dogs right here in Colorado Springs. In my free time, I enjoy reading, writing, and going to the gym. If you have any questions, or would like to schedule a meet-and-greet to see if my home is a good fit, please feel free to call, text, or email.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Shared Information Grid -->
-        <div id="sharedInfoGridWrapper" class="block">
-            <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="bg-white/75 backdrop-blur-md p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="text-base font-medium text-gray-900 mb-2 flex items-center">
-                        <svg class="h-5 w-5 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Real-time Updates
-                    </h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Our schedule is updated daily. Check back often for the latest availability and changes.
-                    </p>
-                </div>
-
-                <div class="bg-white/75 backdrop-blur-md p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="text-base font-medium text-gray-900 mb-2 flex items-center">
-                        <svg class="h-5 w-5 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        Booking Requests
-                    </h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        To request a boarding slot shown as available, please email us at <button onclick="copyTextWithFeedback(this, 'chestnutboarding@gmail.com')" class="text-[#1a73e8] hover:underline font-medium relative inline-block cursor-pointer">chestnutboarding@gmail.com</button> or call/text <button onclick="copyTextWithFeedback(this, '719-641-8340')" class="text-[#1a73e8] hover:underline font-medium relative inline-block cursor-pointer">719-641-8340</button>.
-                    </p>
-                </div>
-
-                <div class="bg-white/75 backdrop-blur-md p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="text-base font-medium text-gray-900 mb-2 flex items-center">
-                        <svg class="h-5 w-5 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Facility Rules
-                    </h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Please ensure all vaccinations are up to date before arriving for your scheduled slot.
-                    </p>
-                    <div class="text-gray-500 text-xs leading-relaxed mt-3 pt-3 border-t border-gray-200">
-                        <p class="mb-1">This facility is regulated by the Colorado Department of Agriculture's Pet Animal Care Facilities Act Program.</p>
-                        <p><strong>Address:</strong> 305 Interlocken Parkway, Broomfield, CO 80021</p>
-                        <p><strong>Phone:</strong> <button onclick="copyTextWithFeedback(this, '(303) 869-9146')" class="text-[#1a73e8] hover:underline cursor-pointer">(303) 869-9146</button></p>
-                    </div>
-                </div>
-
-                <div class="bg-white/75 backdrop-blur-md p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="text-base font-medium text-gray-900 mb-2 flex items-center">
-                        <svg class="h-5 w-5 mr-2 text-[#1a73e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Boarding Agreement
-                    </h3>
-                    <p class="text-gray-600 text-sm leading-relaxed mb-3">
-                        Please feel free to view our boarding agreement at any time.
-                    </p>
-                    <div class="flex flex-col items-start gap-2">
-                        <button onclick="openAgreementModal()" class="inline-flex items-center text-sm font-medium text-[#1a73e8] hover:underline cursor-pointer">
-                            View Agreement
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Photos View -->
-        <div id="photosView" class="hidden">
-            <div class="bg-white/75 backdrop-blur-md p-8 rounded-xl shadow-sm border border-gray-200">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/cPlun05.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/2G4duPM.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/sYR0cQw.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/iyH9Nyb.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/9d1RdYn.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/te38jbL.jpeg" alt="Dog" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/Ao5jDR2.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/i1sjwwf.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/Ew9F60Q.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/wbSX7hY.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/Vlh47pQ.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/BcRCkbs.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/p7qYLIa.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/0Qor7xT.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                    <div class="overflow-hidden rounded-xl shadow-sm border border-gray-200 bg-white">
-                        <img src="https://i.imgur.com/F6uMcYr.jpeg" alt="Chestnut Boarding Photo" onclick="openImageModal(this.src)" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <footer class="bg-white/75 backdrop-blur-md border-t border-gray-200 mt-16 py-8">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-500 text-sm">© 2026 Chestnut Boarding. All rights reserved.</p>
-            <p class="text-gray-400 text-xs mt-1">Contact: chestnutboarding@gmail.com | 719-641-8340</p>
-        </div>
-    </footer>
-
-    <!-- Contact Modal -->
-    <div id="contactModal" class="fixed inset-0 z-50 hidden bg-gray-900 bg-opacity-40 overflow-y-auto h-full w-full flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-xl max-w-md w-full mx-4 relative border border-gray-100">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 focus:outline-none transition py-2 px-2">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <h2 class="text-xl font-medium text-gray-900 mb-4">Contact Us</h2>
             
-            <div class="text-gray-600 space-y-4 text-sm">
-                <p>Reach out directly for questions or boarding requests:</p>
-                <div class="bg-[#f8f9fa] p-4 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <button onclick="copyTextWithFeedback(this, 'chestnutboarding@gmail.com')" class="text-base font-medium text-[#1a73e8] hover:underline truncate cursor-pointer text-left">chestnutboarding@gmail.com</button>
-                    <button onclick="copyEmail()" class="ml-3 p-2 text-gray-500 hover:text-[#1a73e8] rounded-lg transition" title="Copy Email">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="bg-[#f8f9fa] p-4 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <button onclick="copyTextWithFeedback(this, '719-641-8340')" class="text-base font-medium text-[#1a73e8] hover:underline cursor-pointer text-left">719-641-8340</button>
-                    <button onclick="copyPhone()" class="ml-3 p-2 text-gray-500 hover:text-[#1a73e8] rounded-lg transition" title="Copy Phone">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="closeModal()" class="bg-white border border-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg hover:bg-gray-50 transition">Close</button>
-            </div>
+            <button onclick="restartPortal()" 
+                    class="restart-btn px-6 py-2 font-bold text-lg flex items-center gap-x-2">
+                <i class="fa-solid fa-redo"></i>
+                <span>RESTART</span>
+            </button>
         </div>
     </div>
 
-    <!-- Image Viewer Modal -->
-    <div id="imageModal" class="fixed inset-0 z-[60] hidden bg-gray-900 bg-opacity-90 overflow-y-auto h-full w-full flex items-center justify-center backdrop-blur-sm cursor-pointer">
-        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-gray-300 hover:text-white transition p-2 z-10">
-            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <img id="modalImage" src="" alt="Full size" class="max-h-[85vh] max-w-full object-contain rounded shadow-2xl pointer-events-auto">
-    </div>
+    <div class="flex h-[calc(100vh-73px)]">
+        
+        <!-- Sidebar -->
+        <div class="w-72 border-r border-[#00ff9f] bg-[#0a0f0a] p-4 flex flex-col">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-2 flex items-center gap-x-2">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                    <span>JANE / NUKA-GIRL</span>
+                </h2>
+                <div class="text-sm text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
+            </div>
 
-    <!-- Agreement Modal -->
-    <div id="agreementModal" class="fixed inset-0 z-[70] hidden bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-start justify-center backdrop-blur-sm p-4 sm:p-8">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl relative flex flex-col max-h-full">
-            <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl z-10">
-                <h2 class="text-xl font-medium text-gray-900">Boarding Agreement</h2>
-                <button onclick="closeAgreementModal()" class="text-gray-400 hover:text-gray-700 transition focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+            <!-- Status -->
+            <div class="status-bar p-3 mb-4">
+                <div class="text-xs uppercase tracking-widest mb-2 text-[#ff00aa]">CURRENT STATUS</div>
+                
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>LOCATION</span>
+                        </div>
+                        <div id="location" class="font-bold text-[#ffcc00]">UNKNOWN</div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>FAME LEVEL</span>
+                            <span id="fame-value">12</span>
+                        </div>
+                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
+                            <div id="fame-bar" class="h-full bg-[#00ff9f] transition-all" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>SUIT INTEGRITY</span>
+                            <span id="suit-value">64%</span>
+                        </div>
+                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
+                            <div id="suit-bar" class="h-full bg-[#ff8800] transition-all" style="width: 64%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span>MENTAL STATE</span>
+                        </div>
+                        <div id="mental-state" class="font-bold text-[#ff00aa]">MANIC / DELUSIONAL</div>
+                    </div>
+                </div>
             </div>
-            <div class="overflow-y-auto p-4 sm:p-6 bg-gray-50 flex-grow rounded-b-xl space-y-4 sm:space-y-6">
-                <img src="https://i.imgur.com/YjD8bgy.jpeg" alt="Agreement Page 1" class="w-full h-auto rounded shadow-sm border border-gray-200">
-                <img src="https://i.imgur.com/X15cOQz.jpeg" alt="Agreement Page 2" class="w-full h-auto rounded shadow-sm border border-gray-200">
-                <img src="https://i.imgur.com/QjrD4Sa.jpeg" alt="Agreement Page 3" class="w-full h-auto rounded shadow-sm border border-gray-200">
-                <img src="https://i.imgur.com/bxmW8mv.jpeg" alt="Agreement Page 4" class="w-full h-auto rounded shadow-sm border border-gray-200">
+
+            <div class="flex-1"></div>
+
+            <div class="text-[10px] text-center text-[#00ff9f]/60">
+                REAL-TIME GROK ROLEPLAY<br>
+                NSFW ENABLED • LORE ACCURATE
             </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col">
+            
+            <!-- Chat Header -->
+            <div class="bg-[#112211] px-6 py-3 border-b border-[#00ff9f] flex items-center justify-between">
+                <div>
+                    <span class="font-bold">CURRENT SCENARIO:</span> 
+                    <span id="scenario-title" class="text-[#ffcc00]">Waiting for restart...</span>
+                </div>
+                <div class="text-xs px-3 py-1 bg-[#0a0f0a] border border-[#00ff9f]">
+                    <i class="fa-solid fa-globe"></i> COMMONWEALTH
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-container" 
+                 class="flex-1 p-6 overflow-y-auto chat-container bg-[#050805]">
+                <div class="text-center text-[#00ff9f]/40 py-12">
+                    <i class="fa-solid fa-radiation text-6xl mb-4"></i>
+                    <p class="text-xl">Press RESTART to begin a new unique scenario</p>
+                    <p class="text-sm mt-2 text-[#ff00aa]">The Mysterious Stranger will teleport in to save Nuka-Girl</p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-[#00ff9f] bg-[#0a0f0a]">
+                <div class="flex gap-x-3">
+                    <textarea id="user-input" 
+                              class="terminal-input flex-1 p-4 resize-none h-20 text-lg"
+                              placeholder="What does the Mysterious Stranger do or say?"
+                              onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                    
+                    <button onclick="sendMessage()" 
+                            class="fallout-btn px-8 font-bold text-xl flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>
+                        <span>SEND</span>
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
 
     <script>
-        function openModal() { document.getElementById('contactModal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('contactModal').classList.add('hidden'); }
-        
-        function openImageModal(src) {
-            const modal = document.getElementById('imageModal');
-            document.getElementById('modalImage').src = src;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        let chatHistory = [];
+        let currentFame = 12;
+        let currentSuit = 64;
+        let isProcessing = false;
+
+        function updateStatus(location = null) {
+            if (location) document.getElementById('location').textContent = location;
+            
+            document.getElementById('fame-value').textContent = currentFame;
+            const famePercent = Math.min(Math.max(currentFame * 2.5, 10), 100);
+            document.getElementById('fame-bar').style.width = famePercent + '%';
+            
+            document.getElementById('suit-value').textContent = currentSuit + '%';
+            document.getElementById('suit-bar').style.width = currentSuit + '%';
+            
+            const mentalEl = document.getElementById('mental-state');
+            if (currentFame > 30) {
+                mentalEl.textContent = 'MANIC / CONFIDENT';
+                mentalEl.style.color = '#ffcc00';
+            } else if (currentSuit < 40) {
+                mentalEl.textContent = 'PARANOID / HURT';
+                mentalEl.style.color = '#ff4444';
+            } else {
+                mentalEl.textContent = 'MANIC / DELUSIONAL';
+                mentalEl.style.color = '#ff00aa';
+            }
+        }
+
+        function addMessage(role, content, isInitial = false) {
+            const container = document.getElementById('chat-container');
+            if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role === 'user' ? 'message-user' : 'message-jane'}`;
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-center gap-x-2 mb-1">
+                        <span class="font-bold text-[#00ff9f]">YOU (Mysterious Stranger)</span>
+                    </div>
+                    <div class="text-[#aaffaa]">${content}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-center gap-x-2 mb-1">
+                        <i class="fa-solid fa-user-astronaut text-[#ff00aa]"></i>
+                        <span class="font-bold text-[#ff00aa]">NUKA-GIRL</span>
+                    </div>
+                    <div class="text-[#ffccff] whitespace-pre-wrap">${content}</div>
+                `;
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            if (!isInitial) {
+                chatHistory.push({
+                    role: role === 'user' ? 'user' : 'assistant',
+                    content: content
+                });
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text || isProcessing) return;
+            
+            isProcessing = true;
+            addMessage('user', text);
+            input.value = '';
+            
+            const container = document.getElementById('chat-container');
+            const thinking = document.createElement('div');
+            thinking.id = 'thinking';
+            thinking.className = 'message message-jane opacity-70';
+            thinking.innerHTML = `<div class="flex items-center gap-x-2"><i class="fa-solid fa-spinner fa-spin"></i> <span>Nuka-Girl is responding...</span></div>`;
+            container.appendChild(thinking);
+            container.scrollTop = container.scrollHeight;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: chatHistory, isRestart: false })
+                });
+                
+                const data = await response.json();
+                thinking.remove();
+                
+                if (data.error) {
+                    addMessage('jane', `SYSTEM ERROR: ${data.error}`);
+                    return;
+                }
+                
+                addMessage('jane', data.reply.content);
+                
+                if (data.reply.content.toLowerCase().includes('fame') || data.reply.content.toLowerCase().includes('recognize')) currentFame = Math.min(currentFame + 3, 100);
+                if (data.reply.content.toLowerCase().includes('torn') || data.reply.content.toLowerCase().includes('damage')) currentSuit = Math.max(currentSuit - 5, 10);
+                
+                updateStatus();
+            } catch (error) {
+                thinking.remove();
+                addMessage('jane', 'CONNECTION ERROR');
+            }
+            
+            isProcessing = false;
+        }
+
+        async function restartPortal() {
+            if (!confirm('Restart with a completely new unique trapped scenario?')) return;
+            
+            document.getElementById('chat-container').innerHTML = '';
+            chatHistory = [];
+            currentFame = 15;
+            currentSuit = 75;
+            
+            const container = document.getElementById('chat-container');
+            container.innerHTML = `<div class="flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-6xl mb-4 text-[#ff00aa]"></i><p class="text-2xl">GENERATING NEW SCENARIO...</p></div></div>`;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: [], isRestart: true })
+                });
+                
+                const data = await response.json();
+                container.innerHTML = '';
+                
+                if (data.error) {
+                    addMessage('jane', `RESTART ERROR: ${data.error}`);
+                    return;
+                }
+                
+                addMessage('jane', data.reply.content, true);
+                updateStatus('NEW LOCATION');
+                document.getElementById('scenario-title').textContent = 'FRESH SCENARIO LOADED';
+            } catch (error) {
+                container.innerHTML = '';
+                addMessage('jane', 'Failed to generate new scenario.');
+            }
+        }
+
+        function init() {
+            updateStatus();
         }
         
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        function openAgreementModal() {
-            document.getElementById('agreementModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeAgreementModal() {
-            document.getElementById('agreementModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        function switchTab(tab) {
-            ['scheduleView', 'aboutView', 'photosView'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            ['nav-schedule', 'nav-about', 'nav-photos'].forEach(n => {
-                const el = document.getElementById(n);
-                el.classList.remove('text-[#1a73e8]');
-                el.classList.add('text-gray-600');
-            });
-
-            document.getElementById(tab + 'View').classList.remove('hidden');
-            const activeNav = document.getElementById('nav-' + tab);
-            activeNav.classList.remove('text-gray-600');
-            activeNav.classList.add('text-[#1a73e8]');
-
-            const infoGrid = document.getElementById('sharedInfoGridWrapper');
-            tab === 'photos' ? infoGrid.classList.add('hidden') : infoGrid.classList.remove('hidden');
-        }
-
-        function copyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-        }
-
-        function copyEmail() { copyTextToClipboard("chestnutboarding@gmail.com"); }
-        function copyPhone() { copyTextToClipboard("719-641-8340"); }
-
-        function copyTextWithFeedback(el, text) {
-            copyTextToClipboard(text);
-            const originalText = el.innerText;
-            el.innerText = 'Copied!';
-            setTimeout(() => {
-                el.innerText = originalText;
-            }, 1500);
-        }
-
-        window.onclick = function(event) {
-            if (event.target === document.getElementById('contactModal')) closeModal();
-            if (event.target === document.getElementById('imageModal')) closeImageModal();
-            if (event.target === document.getElementById('agreementModal')) closeAgreementModal();
-        }
+        window.onload = init;
     </script>
 </body>
 </html>
