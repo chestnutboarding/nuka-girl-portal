@@ -11,8 +11,8 @@
             background-color: #0a0f0a;
             color: #00ff9f;
             font-family: Consolas, "Courier New", monospace;
-            font-size: 20px;
-            line-height: 1.5;
+            font-size: 18px;
+            line-height: 1.45;
         }
         
         .nuka-header {
@@ -30,7 +30,7 @@
             border: 2px solid #ff4444;
             color: #ff4444;
             transition: all 0.2s;
-            font-size: 19px;
+            font-size: 18px;
         }
         
         .fallout-btn {
@@ -38,7 +38,7 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             transition: all 0.2s;
-            font-size: 19px;
+            font-size: 18px;
         }
         
         .terminal-input {
@@ -46,15 +46,15 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             font-family: Consolas, "Courier New", monospace;
-            font-size: 19px;
+            font-size: 17px;
         }
         
         .message {
-            margin-bottom: 16px;
-            padding: 13px 16px;
+            margin-bottom: 14px;
+            padding: 11px 14px;
             border-radius: 4px;
-            line-height: 1.5;
-            font-size: 20px;
+            line-height: 1.45;
+            font-size: 18px;
         }
         
         .message-user {
@@ -76,13 +76,15 @@
         }
         
         .sidebar-text {
-            font-size: 18px;
+            font-size: 17px;
         }
         
-        .retro-header {
-            font-family: 'VT323', monospace;
-            font-size: 42px;
-            text-shadow: 0 0 8px #00ff9f;
+        .chat-welcome {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
         }
     </style>
 </head>
@@ -93,7 +95,9 @@
             <div class="flex items-center gap-x-3">
                 <i class="fa-solid fa-radiation text-4xl text-[#ff00aa]"></i>
                 <div>
-                    <h1 class="retro-header tracking-[3px]">NUKA-GIRL PROTOCOL</h1>
+                    <h1 class="text-3xl font-bold tracking-[2px]" style="font-family: 'VT323', monospace; text-shadow: 0 0 6px #00ff9f;">
+                        NUKA-GIRL PROTOCOL
+                    </h1>
                     <p class="text-sm text-[#ff00aa] -mt-1">v2.0 • POWERED BY GROK</p>
                 </div>
             </div>
@@ -106,7 +110,7 @@
             </div>
             
             <button onclick="restartPortal()" 
-                    class="restart-btn px-6 py-2 font-bold flex items-center gap-x-2">
+                    class="restart-btn px-5 py-1.5 font-bold flex items-center gap-x-2">
                 <i class="fa-solid fa-redo"></i>
                 <span>RESTART</span>
             </button>
@@ -117,44 +121,44 @@
         
         <!-- Sidebar -->
         <div class="w-72 border-r border-[#00ff9f] bg-[#0a0f0a] p-4 flex flex-col">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold mb-1 flex items-center gap-x-2">
+            <div class="mb-5">
+                <h2 class="text-xl font-bold mb-0.5 flex items-center gap-x-2">
                     <i class="fa-solid fa-user-astronaut"></i>
                     <span>JANE / NUKA-GIRL</span>
                 </h2>
-                <div class="text-base text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
+                <div class="text-sm text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
             </div>
 
             <!-- Status -->
-            <div class="status-bar p-4 mb-4">
-                <div class="text-sm uppercase tracking-widest mb-4 text-[#ff00aa]">CURRENT STATUS</div>
+            <div class="status-bar p-3 mb-4">
+                <div class="text-xs uppercase tracking-widest mb-3 text-[#ff00aa]">CURRENT STATUS</div>
                 
-                <div class="space-y-5 sidebar-text">
+                <div class="space-y-4 sidebar-text">
                     <!-- Trust -->
                     <div>
-                        <div class="flex justify-between mb-1.5">
+                        <div class="flex justify-between mb-1">
                             <span>TRUST</span>
                             <span id="trust-value" class="font-bold">15</span>
                         </div>
-                        <div class="h-2.5 bg-[#112211] border border-[#00ff9f]">
+                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
                             <div id="trust-bar" class="h-full bg-[#ff00aa] transition-all" style="width: 15%"></div>
                         </div>
                     </div>
 
                     <!-- Fame -->
                     <div>
-                        <div class="flex justify-between mb-1.5">
+                        <div class="flex justify-between mb-1">
                             <span>FAME</span>
                             <span id="fame-value" class="font-bold">12</span>
                         </div>
-                        <div class="h-2.5 bg-[#112211] border border-[#00ff9f]">
+                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
                             <div id="fame-bar" class="h-full bg-[#00ff9f] transition-all" style="width: 35%"></div>
                         </div>
                     </div>
 
                     <!-- Mental State -->
                     <div>
-                        <div class="flex justify-between mb-1.5">
+                        <div class="flex justify-between mb-1">
                             <span>MENTAL STATE</span>
                         </div>
                         <div id="mental-state" class="font-bold text-[#ff00aa]">PARANOID / WARY</div>
@@ -164,7 +168,7 @@
 
             <div class="flex-1"></div>
 
-            <div class="text-xs text-center text-[#00ff9f]/60">
+            <div class="text-[10px] text-center text-[#00ff9f]/60">
                 REAL-TIME GROK ROLEPLAY<br>
                 NSFW ENABLED • LORE ACCURATE
             </div>
@@ -174,36 +178,38 @@
         <div class="flex-1 flex flex-col">
             
             <!-- Chat Header -->
-            <div class="bg-[#112211] px-6 py-3 border-b border-[#00ff9f] flex items-center justify-between text-lg">
+            <div class="bg-[#112211] px-5 py-2.5 border-b border-[#00ff9f] flex items-center justify-between text-base">
                 <div>
                     <span class="font-bold">CURRENT SCENARIO:</span> 
                     <span id="scenario-title" class="text-[#ffcc00]">Waiting for restart...</span>
                 </div>
-                <div class="text-sm px-3 py-1 bg-[#0a0f0a] border border-[#00ff9f]">
+                <div class="text-xs px-2.5 py-0.5 bg-[#0a0f0a] border border-[#00ff9f]">
                     <i class="fa-solid fa-globe"></i> COMMONWEALTH
                 </div>
             </div>
 
             <!-- Chat Messages -->
             <div id="chat-container" 
-                 class="flex-1 p-6 overflow-y-auto chat-container bg-[#050805]">
-                <div class="text-center text-[#00ff9f]/40 py-12">
-                    <i class="fa-solid fa-radiation text-6xl mb-4"></i>
-                    <p class="text-2xl">Press RESTART to begin a new unique scenario</p>
+                 class="flex-1 p-5 overflow-y-auto chat-container bg-[#050805]">
+                <div class="chat-welcome flex items-center justify-center h-full text-center">
+                    <div>
+                        <i class="fa-solid fa-radiation text-5xl mb-3 block"></i>
+                        <p>Press RESTART to begin a new unique scenario</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-[#00ff9f] bg-[#0a0f0a]">
+            <div class="p-3 border-t border-[#00ff9f] bg-[#0a0f0a]">
                 <div class="flex gap-x-3">
                     <textarea id="user-input" 
-                              class="terminal-input flex-1 p-5 resize-none h-24 text-xl"
+                              class="terminal-input flex-1 p-4 resize-none h-20 text-lg"
                               placeholder="What does the Mysterious Stranger do or say?"
                               onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
                     
                     <button onclick="sendMessage()" 
-                            class="fallout-btn px-10 font-bold text-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane mr-3"></i>
+                            class="fallout-btn px-8 font-bold text-xl flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>
                         <span>SEND</span>
                     </button>
                 </div>
@@ -338,7 +344,7 @@
             currentTrust = 15;
             
             const container = document.getElementById('chat-container');
-            container.innerHTML = `<div class="flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-6xl mb-4 text-[#ff00aa]"></i><p class="text-2xl">GENERATING NEW SCENARIO...</p></div></div>`;
+            container.innerHTML = `<div class="chat-welcome flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-5xl mb-3 block"></i><p>Press RESTART to begin a new unique scenario</p></div></div>`;
             
             try {
                 const response = await fetch('/api/chat', {
