@@ -110,6 +110,31 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Modal Styles for Thoughts */
+        .thoughts-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(5, 8, 5, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .thoughts-modal-content {
+            background-color: #0a0a14;
+            border: 1px solid #ff00aa;
+            color: #ffccf0;
+            padding: 24px;
+            border-radius: 4px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(255, 0, 170, 0.15);
+            font-style: italic;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -244,6 +269,22 @@
         </div>
     </div>
 
+    <!-- Thoughts Modal -->
+    <div id="thoughts-modal" class="thoughts-modal-overlay" onclick="if(event.target === this) closeThoughtsModal()">
+        <div class="thoughts-modal-content">
+            <div class="flex justify-between items-center mb-3 border-b border-[#ff00aa]/30 pb-2">
+                <div class="text-[#ff00aa] font-bold text-sm tracking-widest flex items-center gap-x-2">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>JANE'S INTERNAL THOUGHTS</span>
+                </div>
+                <button onclick="closeThoughtsModal()" class="text-[#ff00aa] hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div id="thoughts-text" class="whitespace-pre-wrap text-[17px]"></div>
+        </div>
+    </div>
+
     <script>
         let chatHistory = [];
         let memoryBank = [];
@@ -286,7 +327,8 @@
             });
         }
 
-        function addMessage(role, displayContent, isInitial = false) {
+        // Updated addMessage to accept and render thoughts
+        function addMessage(role, displayContent, thoughts = null) {
             const container = document.getElementById('chat-container');
             if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
             
@@ -301,17 +343,42 @@
                     <div>${displayContent}</div>
                 `;
             } else {
+                let thoughtsHtml = '';
+                if (thoughts) {
+                    // Safely encode thoughts so they don't break the HTML string
+                    const safeThoughts = encodeURIComponent(thoughts);
+                    thoughtsHtml = `
+                        <div class="mt-3 flex justify-end">
+                            <button onclick="openThoughtsModal(decodeURIComponent('${safeThoughts}'))" 
+                                    class="text-[13px] text-[#ff00aa] opacity-50 hover:opacity-100 transition-opacity flex items-center gap-x-1.5 uppercase tracking-wide">
+                                <i class="fa-solid fa-eye"></i> <span>Glimpse Thoughts</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
                 messageDiv.innerHTML = `
                     <div class="flex items-center gap-x-2 mb-1">
                         <i class="fa-solid fa-user-astronaut text-[#ff00aa]"></i>
                         <span class="font-bold text-[#ff00aa]">NUKA-GIRL</span>
                     </div>
                     <div class="whitespace-pre-wrap">${displayContent}</div>
+                    ${thoughtsHtml}
                 `;
             }
             
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
+        }
+
+        // Modal Functions
+        function openThoughtsModal(text) {
+            document.getElementById('thoughts-text').textContent = text;
+            document.getElementById('thoughts-modal').style.display = 'flex';
+        }
+
+        function closeThoughtsModal() {
+            document.getElementById('thoughts-modal').style.display = 'none';
         }
 
         function showMemoryToast(memoryText) {
@@ -386,7 +453,9 @@
                 
                 pushToHistory('assistant', aiData.narrative);
                 const displayReply = processActions(aiData.narrative);
-                addMessage('jane', displayReply);
+                
+                // Pass internal thoughts to addMessage
+                addMessage('jane', displayReply, aiData.internal_thoughts);
 
                 if (aiData.trust_shift) currentTrust = Math.max(5, Math.min(100, currentTrust + aiData.trust_shift));
                 if (aiData.fame_shift) currentFame = Math.max(0, Math.min(100, currentFame + aiData.fame_shift));
@@ -447,7 +516,9 @@
                 
                 pushToHistory('assistant', aiData.narrative);
                 const displayReply = processActions(aiData.narrative);
-                addMessage('jane', displayReply);
+                
+                // Pass internal thoughts to addMessage
+                addMessage('jane', displayReply, aiData.internal_thoughts);
 
                 if (aiData.trust_shift) currentTrust = Math.max(5, Math.min(100, currentTrust + aiData.trust_shift));
                 if (aiData.fame_shift) currentFame = Math.max(0, Math.min(100, currentFame + aiData.fame_shift));
@@ -509,7 +580,9 @@
                 
                 pushToHistory('assistant', aiData.narrative);
                 const displayContent = processActions(aiData.narrative);
-                addMessage('jane', displayContent);
+                
+                // Pass internal thoughts to addMessage
+                addMessage('jane', displayContent, aiData.internal_thoughts);
 
                 if (aiData.trust_shift) currentTrust = Math.max(5, Math.min(100, currentTrust + aiData.trust_shift));
                 if (aiData.fame_shift) currentFame = Math.max(0, Math.min(100, currentFame + aiData.fame_shift));
