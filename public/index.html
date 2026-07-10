@@ -203,6 +203,10 @@
                               class="terminal-input flex-1 p-3 resize-none h-16 text-base"
                               placeholder="What does the Mysterious Stranger do or say?"
                               onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                    <button onclick="continueStory()" 
+                            class="fallout-btn px-4 font-bold text-lg flex items-center justify-center">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
                     
                     <button onclick="sendMessage()" 
                             class="fallout-btn px-6 font-bold text-lg flex items-center justify-center">
@@ -354,6 +358,65 @@
         }
 
         async function restartPortal() {
+            async function continueStory() {
+            if (isProcessing) return;
+
+            isProcessing = true;
+
+            // Push a hidden prompt to the history array to compel the AI to continue
+            pushToHistory('user', '*takes no action, waiting for you to continue*');
+
+            const container = document.getElementById('chat-container');
+            const thinking = document.createElement('div');
+            thinking.className = 'message message-jane opacity-70';
+            thinking.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin"></i> Nuka-Girl is continuing...</div>`;
+            container.appendChild(thinking);
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        history: chatHistory, 
+                        isRestart: false,
+                        currentTrust: currentTrust,
+                        currentMentalState: document.getElementById('mental-state').textContent
+                    })
+                });
+
+                const data = await response.json();
+                thinking.remove();
+
+                if (data.error) {
+                    addMessage('jane', data.error);
+                    isProcessing = false;
+                    return;
+                }
+
+                pushToHistory('assistant', data.reply.content);
+
+                const displayReply = processActions(data.reply.content);
+                addMessage('jane', displayReply);
+
+                const lower = data.reply.content.toLowerCase();
+                const negativeKeywords = /(don't trust|wary|stay back|get away|don't touch|never)/;
+                const positiveKeywords = /(trust|thank|stay close|safe)/;
+                
+                if (positiveKeywords.test(lower) && !negativeKeywords.test(lower)) {
+                    currentTrust = Math.min(currentTrust + 5, 100);
+                } else if (negativeKeywords.test(lower)) {
+                    currentTrust = Math.max(currentTrust - 4, 5);
+                }
+
+                updateStatus();
+            } catch (error) {
+                thinking.remove();
+                addMessage('jane', 'Connection error.');
+            }
+
+            isProcessing = false;
+        }
             if (!confirm('Start a completely new scenario?')) return;
             
             document.getElementById('chat-container').innerHTML = '';
