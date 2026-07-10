@@ -13,7 +13,8 @@
             background-color: #0a0f0a;
             color: #00ff9f;
             font-family: 'VT323', monospace;
-            font-size: 18px; /* Bigger text */
+            font-size: 22px;
+            line-height: 1.4;
         }
         
         .nuka-header {
@@ -31,12 +32,7 @@
             border: 2px solid #ff4444;
             color: #ff4444;
             transition: all 0.2s;
-        }
-        
-        .restart-btn:hover {
-            background-color: #5a0a0a;
-            box-shadow: 0 0 15px #ff4444;
-            transform: scale(1.02);
+            font-size: 20px;
         }
         
         .fallout-btn {
@@ -44,11 +40,7 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             transition: all 0.2s;
-        }
-        
-        .fallout-btn:hover {
-            background-color: #1a3a1a;
-            box-shadow: 0 0 10px #00ff9f;
+            font-size: 20px;
         }
         
         .terminal-input {
@@ -56,26 +48,37 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             font-family: 'VT323', monospace;
-            font-size: 18px;
+            font-size: 20px;
         }
         
         .message {
-            margin-bottom: 14px;
-            padding: 10px 14px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
             border-radius: 4px;
-            line-height: 1.4;
+            line-height: 1.45;
+            font-size: 21px;
         }
         
         .message-user {
             background-color: #1a2a1a;
             border-left: 4px solid #00ff9f;
-            margin-left: 20%;
+            margin-left: 18%;
         }
         
         .message-jane {
             background-color: #0f1a0f;
             border-left: 4px solid #ff00aa;
-            margin-right: 20%;
+            margin-right: 18%;
+        }
+        
+        .action-text {
+            color: #aaffcc;
+            opacity: 0.85;
+            font-style: italic;
+        }
+        
+        .sidebar-text {
+            font-size: 19px;
         }
     </style>
 </head>
@@ -99,7 +102,7 @@
             </div>
             
             <button onclick="restartPortal()" 
-                    class="restart-btn px-6 py-2 font-bold text-lg flex items-center gap-x-2">
+                    class="restart-btn px-6 py-2 font-bold flex items-center gap-x-2">
                 <i class="fa-solid fa-redo"></i>
                 <span>RESTART</span>
             </button>
@@ -111,53 +114,53 @@
         <!-- Sidebar -->
         <div class="w-72 border-r border-[#00ff9f] bg-[#0a0f0a] p-4 flex flex-col">
             <div class="mb-6">
-                <h2 class="text-xl font-bold mb-2 flex items-center gap-x-2">
+                <h2 class="text-2xl font-bold mb-1 flex items-center gap-x-2">
                     <i class="fa-solid fa-user-astronaut"></i>
                     <span>JANE / NUKA-GIRL</span>
                 </h2>
-                <div class="text-sm text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
+                <div class="text-base text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
             </div>
 
             <!-- Status -->
-            <div class="status-bar p-3 mb-4">
-                <div class="text-xs uppercase tracking-widest mb-3 text-[#ff00aa]">CURRENT STATUS</div>
+            <div class="status-bar p-4 mb-4">
+                <div class="text-sm uppercase tracking-widest mb-4 text-[#ff00aa]">CURRENT STATUS</div>
                 
-                <div class="space-y-4 text-sm">
+                <div class="space-y-5 sidebar-text">
                     <!-- Trust -->
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
+                        <div class="flex justify-between mb-1.5">
                             <span>TRUST</span>
-                            <span id="trust-value">15</span>
+                            <span id="trust-value" class="font-bold">15</span>
                         </div>
-                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
+                        <div class="h-2.5 bg-[#112211] border border-[#00ff9f]">
                             <div id="trust-bar" class="h-full bg-[#ff00aa] transition-all" style="width: 15%"></div>
                         </div>
                     </div>
 
                     <!-- Fame -->
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
+                        <div class="flex justify-between mb-1.5">
                             <span>FAME</span>
-                            <span id="fame-value">12</span>
+                            <span id="fame-value" class="font-bold">12</span>
                         </div>
-                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
+                        <div class="h-2.5 bg-[#112211] border border-[#00ff9f]">
                             <div id="fame-bar" class="h-full bg-[#00ff9f] transition-all" style="width: 35%"></div>
                         </div>
                     </div>
 
                     <!-- Mental State -->
                     <div>
-                        <div class="flex justify-between text-xs mb-1">
+                        <div class="flex justify-between mb-1.5">
                             <span>MENTAL STATE</span>
                         </div>
-                        <div id="mental-state" class="font-bold text-[#ff00aa]">MANIC / DELUSIONAL</div>
+                        <div id="mental-state" class="font-bold text-[#ff00aa]">PARANOID / WARY</div>
                     </div>
                 </div>
             </div>
 
             <div class="flex-1"></div>
 
-            <div class="text-[10px] text-center text-[#00ff9f]/60">
+            <div class="text-xs text-center text-[#00ff9f]/60">
                 REAL-TIME GROK ROLEPLAY<br>
                 NSFW ENABLED • LORE ACCURATE
             </div>
@@ -167,12 +170,12 @@
         <div class="flex-1 flex flex-col">
             
             <!-- Chat Header -->
-            <div class="bg-[#112211] px-6 py-3 border-b border-[#00ff9f] flex items-center justify-between">
+            <div class="bg-[#112211] px-6 py-3 border-b border-[#00ff9f] flex items-center justify-between text-lg">
                 <div>
                     <span class="font-bold">CURRENT SCENARIO:</span> 
                     <span id="scenario-title" class="text-[#ffcc00]">Waiting for restart...</span>
                 </div>
-                <div class="text-xs px-3 py-1 bg-[#0a0f0a] border border-[#00ff9f]">
+                <div class="text-sm px-3 py-1 bg-[#0a0f0a] border border-[#00ff9f]">
                     <i class="fa-solid fa-globe"></i> COMMONWEALTH
                 </div>
             </div>
@@ -182,7 +185,7 @@
                  class="flex-1 p-6 overflow-y-auto chat-container bg-[#050805]">
                 <div class="text-center text-[#00ff9f]/40 py-12">
                     <i class="fa-solid fa-radiation text-6xl mb-4"></i>
-                    <p class="text-xl">Press RESTART to begin a new unique scenario</p>
+                    <p class="text-2xl">Press RESTART to begin a new unique scenario</p>
                 </div>
             </div>
 
@@ -190,13 +193,13 @@
             <div class="p-4 border-t border-[#00ff9f] bg-[#0a0f0a]">
                 <div class="flex gap-x-3">
                     <textarea id="user-input" 
-                              class="terminal-input flex-1 p-4 resize-none h-20 text-lg"
+                              class="terminal-input flex-1 p-5 resize-none h-24 text-xl"
                               placeholder="What does the Mysterious Stranger do or say?"
                               onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
                     
                     <button onclick="sendMessage()" 
-                            class="fallout-btn px-8 font-bold text-xl flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane mr-2"></i>
+                            class="fallout-btn px-10 font-bold text-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane mr-3"></i>
                         <span>SEND</span>
                     </button>
                 </div>
@@ -214,17 +217,12 @@
         function updateStatus(location = null) {
             if (location) document.getElementById('scenario-title').textContent = location;
 
-            // Trust
             document.getElementById('trust-value').textContent = currentTrust;
-            const trustPercent = Math.min(Math.max(currentTrust, 5), 100);
-            document.getElementById('trust-bar').style.width = trustPercent + '%';
+            document.getElementById('trust-bar').style.width = Math.min(Math.max(currentTrust, 5), 100) + '%';
 
-            // Fame
             document.getElementById('fame-value').textContent = currentFame;
-            const famePercent = Math.min(Math.max(currentFame * 2.5, 10), 100);
-            document.getElementById('fame-bar').style.width = famePercent + '%';
+            document.getElementById('fame-bar').style.width = Math.min(Math.max(currentFame * 2.5, 10), 100) + '%';
 
-            // Mental State
             const mentalEl = document.getElementById('mental-state');
             if (currentTrust < 25) {
                 mentalEl.textContent = 'PARANOID / WARY';
@@ -240,9 +238,7 @@
 
         function addMessage(role, content, isInitial = false) {
             const container = document.getElementById('chat-container');
-            if (container.querySelector('.welcome-message')) {
-                container.querySelector('.welcome-message').remove();
-            }
+            if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role === 'user' ? 'message-user' : 'message-jane'}`;
@@ -277,48 +273,53 @@
 
         async function sendMessage() {
             const input = document.getElementById('user-input');
-            const text = input.value.trim();
+            let text = input.value.trim();
             if (!text || isProcessing) return;
-            
+
+            // Convert *action* into styled action text
+            const processedText = text.replace(/\*(.+?)\*/g, 
+                '<span class="action-text">$1</span>'
+            );
+
             isProcessing = true;
-            addMessage('user', text);
+            addMessage('user', processedText);
             input.value = '';
-            
+
             const container = document.getElementById('chat-container');
             const thinking = document.createElement('div');
             thinking.className = 'message message-jane opacity-70';
             thinking.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin"></i> Nuka-Girl is responding...</div>`;
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
-            
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ history: chatHistory, isRestart: false })
                 });
-                
+
                 const data = await response.json();
                 thinking.remove();
-                
+
                 if (data.error) {
                     addMessage('jane', data.error);
                     return;
                 }
-                
+
                 addMessage('jane', data.reply.content);
-                
-                // Simple Trust logic based on response tone
+
+                // Trust logic
                 const lower = data.reply.content.toLowerCase();
-                if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay')) currentTrust = Math.min(currentTrust + 4, 100);
-                if (lower.includes('wary') || lower.includes('don\'t') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 3, 5);
-                
+                if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay close')) currentTrust = Math.min(currentTrust + 5, 100);
+                if (lower.includes('wary') || lower.includes('don\'t trust') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 4, 5);
+
                 updateStatus();
             } catch (error) {
                 thinking.remove();
                 addMessage('jane', 'Connection error.');
             }
-            
+
             isProcessing = false;
         }
 
