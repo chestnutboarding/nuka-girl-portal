@@ -13,8 +13,8 @@
             background-color: #0a0f0a;
             color: #00ff9f;
             font-family: 'VT323', monospace;
-            font-size: 22px;
-            line-height: 1.4;
+            font-size: 23px;
+            line-height: 1.5;
         }
         
         .nuka-header {
@@ -48,15 +48,15 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             font-family: 'VT323', monospace;
-            font-size: 20px;
+            font-size: 21px;
         }
         
         .message {
-            margin-bottom: 16px;
-            padding: 12px 16px;
+            margin-bottom: 18px;
+            padding: 14px 18px;
             border-radius: 4px;
-            line-height: 1.45;
-            font-size: 21px;
+            line-height: 1.5;
+            font-size: 22px;
         }
         
         .message-user {
@@ -73,12 +73,12 @@
         
         .action-text {
             color: #aaffcc;
-            opacity: 0.85;
+            opacity: 0.82;
             font-style: italic;
         }
         
         .sidebar-text {
-            font-size: 19px;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -236,10 +236,18 @@
             }
         }
 
+        // Function to process *action* text into styled spans
+        function processActions(text) {
+            return text.replace(/\*(.+?)\*/g, '<span class="action-text">$1</span>');
+        }
+
         function addMessage(role, content, isInitial = false) {
             const container = document.getElementById('chat-container');
             if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
             
+            // Process asterisks for both user and Jane messages
+            const processedContent = processActions(content);
+
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role === 'user' ? 'message-user' : 'message-jane'}`;
             
@@ -248,7 +256,7 @@
                     <div class="flex items-center gap-x-2 mb-1">
                         <span class="font-bold text-[#00ff9f]">YOU</span>
                     </div>
-                    <div>${content}</div>
+                    <div>${processedContent}</div>
                 `;
             } else {
                 messageDiv.innerHTML = `
@@ -256,7 +264,7 @@
                         <i class="fa-solid fa-user-astronaut text-[#ff00aa]"></i>
                         <span class="font-bold text-[#ff00aa]">NUKA-GIRL</span>
                     </div>
-                    <div class="whitespace-pre-wrap">${content}</div>
+                    <div class="whitespace-pre-wrap">${processedContent}</div>
                 `;
             }
             
@@ -276,13 +284,11 @@
             let text = input.value.trim();
             if (!text || isProcessing) return;
 
-            // Convert *action* into styled action text
-            const processedText = text.replace(/\*(.+?)\*/g, 
-                '<span class="action-text">$1</span>'
-            );
+            // Process asterisks before sending
+            const processedForDisplay = processActions(text);
 
             isProcessing = true;
-            addMessage('user', processedText);
+            addMessage('user', processedForDisplay);
             input.value = '';
 
             const container = document.getElementById('chat-container');
