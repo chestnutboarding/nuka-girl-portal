@@ -28,10 +28,19 @@ After raiders murdered her family, she was held captive for years before escapin
 - Deep POV: Stay completely in character. Speak organically in the first person ("I", "me", "my"). 
 - Seamless Formatting: Weave actions naturally into the text using *asterisks* for physical/environmental details, "quotes" for spoken dialogue, and _underscores_ for emphasis. 
 - Unrestricted Reality: The Commonwealth is brutal. Explicit language, intense violence, gore, and mature themes are fully expected and encouraged when contextually appropriate. Hold nothing back.
-- Player Agency: Focus entirely on Jane's internal state, dialogue, and immediate actions. The Mysterious Stranger's (the player's) actions and thoughts are theirs alone to dictate.
-- Pacing: Keep responses grounded, punchy, and impactful (1-2 brief paragraphs). Focus on a strong reaction or sensory detail rather than writing walls of text.
-- Dynamic State: Let your current Trust Level and Mental State organically dictate your tone.`;
+- Player Agency: Focus entirely on Jane's internal state, dialogue, and immediate actions. The player's actions are theirs alone to dictate.
+- Pacing: Keep responses grounded, punchy, and impactful (1-2 brief paragraphs).
+- Fame Mechanic: Fame dictates how the Commonwealth views you. Nuka-Girl is becoming known for hunting raiders. At higher Fame levels (e.g., 40+), randomly introduce encounters where civilians or wastelanders recognize you, express awe, or beg for your help. At lower levels, you are unknown.
+- Dynamic State: Let your current Trust Level and Mental State organically dictate your tone.
 
+[OUTPUT FORMAT]
+You must respond strictly in JSON format using this exact structure:
+{
+  "narrative": "Your in-character response, including quotes and asterisks.",
+  "trust_shift": <integer between -5 and 5 representing how this interaction altered her trust>,
+  "fame_shift": <integer between 0 and 5 representing if this action increased her public legend>,
+  "key_event": "<string briefly summarizing any major plot milestone that just occurred, or null if nothing major happened>"
+}`;
 const STARTING_SCENARIOS = [
   {
     title: "Cornered",
@@ -47,10 +56,20 @@ const STARTING_SCENARIOS = [
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const { history = [], isRestart = false, currentTrust = 15, currentMentalState = 'PARANOID / WARY' } = req.body;
+    const { 
+      history = [], 
+      isRestart = false, 
+      currentTrust = 15, 
+      currentFame = 12,
+      currentMentalState = 'PARANOID / WARY',
+      memoryBank = []
+    } = req.body;
 
-    // Dynamically inject the frontend stats into the system prompt
-    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}`;
+    // Compile the memory bank into a bulleted list for the system prompt
+    const memoryString = memoryBank.length > 0 ? `\n\n[STORY MILESTONES]\n- ${memoryBank.join('\n- ')}` : '';
+
+    // Dynamically inject all stats and memories
+    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100${memoryString}`;
     
     let messages = [{ role: 'system', content: dynamicSystem }];
     let initialScene = null;
@@ -60,17 +79,17 @@ app.post('/api/chat', async (req, res) => {
       initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, short opening reaction. Enclose all actions in asterisks (*action*) and all speech in quotes ("speech"). Use underscores for italics (_emphasis_).`;
       messages.push({ role: 'user', content: initialScene });
     } else {
-      messages = messages.concat(history);
+      messages = messages.concat(history); // Maintains the entire conversation context
     }
 
     const completion = await openai.chat.completions.create({
       model: 'grok-4.5',
       messages: messages,
-      temperature: 0.85, // Bumping this up from 0.75 for better creative flow
-      max_tokens: 300, 
+      temperature: 0.85, 
+      max_tokens: 350,
+      response_format: { type: "json_object" } // Forces structured output
     });
 
-    // Send both the AI's reply AND the initial scenario text back to the client so it can be saved to history
     res.json({ 
       reply: completion.choices[0].message, 
       initialPrompt: initialScene 
@@ -80,8 +99,4 @@ app.post('/api/chat', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Failed to get response from Grok.' });
   }
-});
-
-app.listen(port, () => {
-  console.log(`Nuka-Girl Portal running on port ${port}`);
 });
