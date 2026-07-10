@@ -13,39 +13,7 @@
             background-color: #0a0f0a;
             color: #00ff9f;
             font-family: 'VT323', monospace;
-        }
-        
-        .terminal {
-            background-color: #0a0f0a;
-            border: 2px solid #00ff9f;
-            box-shadow: 0 0 15px rgba(0, 255, 159, 0.3);
-        }
-        
-        .fallout-text {
-            text-shadow: 0 0 5px #00ff9f, 0 0 10px #00ff9f;
-        }
-        
-        .chat-container {
-            scrollbar-width: thin;
-            scrollbar-color: #00ff9f #0a0f0a;
-        }
-        
-        .message {
-            margin-bottom: 12px;
-            padding: 8px 12px;
-            border-radius: 4px;
-        }
-        
-        .message-user {
-            background-color: #1a2a1a;
-            border-left: 4px solid #00ff9f;
-            margin-left: 20%;
-        }
-        
-        .message-jane {
-            background-color: #0f1a0f;
-            border-left: 4px solid #ff00aa;
-            margin-right: 20%;
+            font-size: 18px; /* Bigger text */
         }
         
         .nuka-header {
@@ -88,11 +56,26 @@
             border: 2px solid #00ff9f;
             color: #00ff9f;
             font-family: 'VT323', monospace;
+            font-size: 18px;
         }
         
-        .terminal-input:focus {
-            outline: none;
-            box-shadow: 0 0 10px #00ff9f;
+        .message {
+            margin-bottom: 14px;
+            padding: 10px 14px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+        
+        .message-user {
+            background-color: #1a2a1a;
+            border-left: 4px solid #00ff9f;
+            margin-left: 20%;
+        }
+        
+        .message-jane {
+            background-color: #0f1a0f;
+            border-left: 4px solid #ff00aa;
+            margin-right: 20%;
         }
     </style>
 </head>
@@ -137,36 +120,32 @@
 
             <!-- Status -->
             <div class="status-bar p-3 mb-4">
-                <div class="text-xs uppercase tracking-widest mb-2 text-[#ff00aa]">CURRENT STATUS</div>
+                <div class="text-xs uppercase tracking-widest mb-3 text-[#ff00aa]">CURRENT STATUS</div>
                 
-                <div class="space-y-3 text-sm">
+                <div class="space-y-4 text-sm">
+                    <!-- Trust -->
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span>LOCATION</span>
+                            <span>TRUST</span>
+                            <span id="trust-value">15</span>
                         </div>
-                        <div id="location" class="font-bold text-[#ffcc00]">UNKNOWN</div>
+                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
+                            <div id="trust-bar" class="h-full bg-[#ff00aa] transition-all" style="width: 15%"></div>
+                        </div>
                     </div>
-                    
+
+                    <!-- Fame -->
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span>FAME LEVEL</span>
+                            <span>FAME</span>
                             <span id="fame-value">12</span>
                         </div>
                         <div class="h-2 bg-[#112211] border border-[#00ff9f]">
                             <div id="fame-bar" class="h-full bg-[#00ff9f] transition-all" style="width: 35%"></div>
                         </div>
                     </div>
-                    
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span>SUIT INTEGRITY</span>
-                            <span id="suit-value">64%</span>
-                        </div>
-                        <div class="h-2 bg-[#112211] border border-[#00ff9f]">
-                            <div id="suit-bar" class="h-full bg-[#ff8800] transition-all" style="width: 64%"></div>
-                        </div>
-                    </div>
-                    
+
+                    <!-- Mental State -->
                     <div>
                         <div class="flex justify-between text-xs mb-1">
                             <span>MENTAL STATE</span>
@@ -204,7 +183,6 @@
                 <div class="text-center text-[#00ff9f]/40 py-12">
                     <i class="fa-solid fa-radiation text-6xl mb-4"></i>
                     <p class="text-xl">Press RESTART to begin a new unique scenario</p>
-                    <p class="text-sm mt-2 text-[#ff00aa]">The Mysterious Stranger will teleport in to save Nuka-Girl</p>
                 </div>
             </div>
 
@@ -230,26 +208,30 @@
     <script>
         let chatHistory = [];
         let currentFame = 12;
-        let currentSuit = 64;
+        let currentTrust = 15;
         let isProcessing = false;
 
         function updateStatus(location = null) {
-            if (location) document.getElementById('location').textContent = location;
-            
+            if (location) document.getElementById('scenario-title').textContent = location;
+
+            // Trust
+            document.getElementById('trust-value').textContent = currentTrust;
+            const trustPercent = Math.min(Math.max(currentTrust, 5), 100);
+            document.getElementById('trust-bar').style.width = trustPercent + '%';
+
+            // Fame
             document.getElementById('fame-value').textContent = currentFame;
             const famePercent = Math.min(Math.max(currentFame * 2.5, 10), 100);
             document.getElementById('fame-bar').style.width = famePercent + '%';
-            
-            document.getElementById('suit-value').textContent = currentSuit + '%';
-            document.getElementById('suit-bar').style.width = currentSuit + '%';
-            
+
+            // Mental State
             const mentalEl = document.getElementById('mental-state');
-            if (currentFame > 30) {
-                mentalEl.textContent = 'MANIC / CONFIDENT';
-                mentalEl.style.color = '#ffcc00';
-            } else if (currentSuit < 40) {
-                mentalEl.textContent = 'PARANOID / HURT';
-                mentalEl.style.color = '#ff4444';
+            if (currentTrust < 25) {
+                mentalEl.textContent = 'PARANOID / WARY';
+                mentalEl.style.color = '#ff6666';
+            } else if (currentTrust > 60) {
+                mentalEl.textContent = 'OPEN / ATTACHED';
+                mentalEl.style.color = '#66ffcc';
             } else {
                 mentalEl.textContent = 'MANIC / DELUSIONAL';
                 mentalEl.style.color = '#ff00aa';
@@ -258,7 +240,9 @@
 
         function addMessage(role, content, isInitial = false) {
             const container = document.getElementById('chat-container');
-            if (container.querySelector('.welcome-message')) container.querySelector('.welcome-message').remove();
+            if (container.querySelector('.welcome-message')) {
+                container.querySelector('.welcome-message').remove();
+            }
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role === 'user' ? 'message-user' : 'message-jane'}`;
@@ -266,9 +250,9 @@
             if (role === 'user') {
                 messageDiv.innerHTML = `
                     <div class="flex items-center gap-x-2 mb-1">
-                        <span class="font-bold text-[#00ff9f]">YOU (Mysterious Stranger)</span>
+                        <span class="font-bold text-[#00ff9f]">YOU</span>
                     </div>
-                    <div class="text-[#aaffaa]">${content}</div>
+                    <div>${content}</div>
                 `;
             } else {
                 messageDiv.innerHTML = `
@@ -276,7 +260,7 @@
                         <i class="fa-solid fa-user-astronaut text-[#ff00aa]"></i>
                         <span class="font-bold text-[#ff00aa]">NUKA-GIRL</span>
                     </div>
-                    <div class="text-[#ffccff] whitespace-pre-wrap">${content}</div>
+                    <div class="whitespace-pre-wrap">${content}</div>
                 `;
             }
             
@@ -302,9 +286,8 @@
             
             const container = document.getElementById('chat-container');
             const thinking = document.createElement('div');
-            thinking.id = 'thinking';
             thinking.className = 'message message-jane opacity-70';
-            thinking.innerHTML = `<div class="flex items-center gap-x-2"><i class="fa-solid fa-spinner fa-spin"></i> <span>Nuka-Girl is responding...</span></div>`;
+            thinking.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin"></i> Nuka-Girl is responding...</div>`;
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
             
@@ -319,31 +302,33 @@
                 thinking.remove();
                 
                 if (data.error) {
-                    addMessage('jane', `SYSTEM ERROR: ${data.error}`);
+                    addMessage('jane', data.error);
                     return;
                 }
                 
                 addMessage('jane', data.reply.content);
                 
-                if (data.reply.content.toLowerCase().includes('fame') || data.reply.content.toLowerCase().includes('recognize')) currentFame = Math.min(currentFame + 3, 100);
-                if (data.reply.content.toLowerCase().includes('torn') || data.reply.content.toLowerCase().includes('damage')) currentSuit = Math.max(currentSuit - 5, 10);
+                // Simple Trust logic based on response tone
+                const lower = data.reply.content.toLowerCase();
+                if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay')) currentTrust = Math.min(currentTrust + 4, 100);
+                if (lower.includes('wary') || lower.includes('don\'t') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 3, 5);
                 
                 updateStatus();
             } catch (error) {
                 thinking.remove();
-                addMessage('jane', 'CONNECTION ERROR');
+                addMessage('jane', 'Connection error.');
             }
             
             isProcessing = false;
         }
 
         async function restartPortal() {
-            if (!confirm('Restart with a completely new unique trapped scenario?')) return;
+            if (!confirm('Start a completely new scenario?')) return;
             
             document.getElementById('chat-container').innerHTML = '';
             chatHistory = [];
-            currentFame = 15;
-            currentSuit = 75;
+            currentFame = 12;
+            currentTrust = 15;
             
             const container = document.getElementById('chat-container');
             container.innerHTML = `<div class="flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation fa-spin text-6xl mb-4 text-[#ff00aa]"></i><p class="text-2xl">GENERATING NEW SCENARIO...</p></div></div>`;
@@ -359,16 +344,15 @@
                 container.innerHTML = '';
                 
                 if (data.error) {
-                    addMessage('jane', `RESTART ERROR: ${data.error}`);
+                    addMessage('jane', data.error);
                     return;
                 }
                 
                 addMessage('jane', data.reply.content, true);
                 updateStatus('NEW LOCATION');
-                document.getElementById('scenario-title').textContent = 'FRESH SCENARIO LOADED';
             } catch (error) {
                 container.innerHTML = '';
-                addMessage('jane', 'Failed to generate new scenario.');
+                addMessage('jane', 'Failed to start new scenario.');
             }
         }
 
