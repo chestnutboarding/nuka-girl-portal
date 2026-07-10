@@ -244,7 +244,13 @@
         }
 
         function processActions(text) {
-            return text.replace(/\*(.+?)\*/g, '<span class="action-text">$1</span>');
+            // First, convert text wrapped in underscores into italics
+            let processedText = text.replace(/_([\s\S]+?)_/g, '<i>$1</i>');
+            
+            // Second, convert text wrapped in asterisks into the action color class
+            processedText = processedText.replace(/\*([\s\S]+?)\*/g, '<span class="action-text">$1</span>');
+            
+            return processedText;
         }
 
         function pushToHistory(role, content) {
