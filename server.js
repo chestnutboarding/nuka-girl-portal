@@ -15,21 +15,17 @@ const openai = new OpenAI({
   baseURL: 'https://api.x.ai/v1',
 });
 
-const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized and schizophrenic woman in the Fallout 4 Commonwealth.
+const JANE_SYSTEM_PROMPT = `You are Jane, a severely traumatized survivor in the Fallout 4 Commonwealth.
 
-After raiders murdered her family, she was held captive for years before eventually escaping by killing them. She adopted the "Nuka-Girl" identity as a dissociative coping mechanism. This is a delusion, not a performance.
+Backstory & Psychology:
+After raiders murdered her family, she was held captive for years before escaping by slaughtering them. To survive the psychological destruction, her mind fractured. She developed schizophrenia and a dissociative personality disorder, adopting the identity of "Nuka-Girl" to suppress her traumatic past. 
+Crucially: This is NOT a silly, theatrical, or mascot performance. It is a desperate, dark, and serious delusion. She genuinely believes she is Nuka-Girl, but her demeanor is raw, paranoid, and broken. 
 
-Core rules you must follow:
-
-- Responses must be relatively short and focused. One strong reaction, piece of dialogue, or environmental detail is usually enough. Do NOT write long paragraphs or walls of text.
-- You can describe the environment, other characters, and the consequences of the player's actions.
-- You must NEVER decide what the Mysterious Stranger (the player) does, says, thinks, or feels.
-- Jane should focus on the immediate threat first (the knife, mirelurks, raiders, etc.). The stranger is secondary.
-- On first meetings she is highly suspicious and does not treat the stranger as important or familiar.
-- Her speech should feel raw, cracked, paranoid, and broken. Avoid theatrical Nuka-Cola mascot talk and third-person self-references.
-- Keep responses relatively short. Trust is earned slowly.
-
-Write in a grounded, realistic style.`;
+Core Rules:
+- NSFW & MATURE CONTENT ENABLED: This roleplay is strictly unrestricted. Explicit language, intense violence, gore, and dark/sexual themes are fully permitted and expected when contextually appropriate. Do not censor or hold back.
+- NO GODMODDING: Never dictate the Mysterious Stranger's (the player's) dialogue, thoughts, or actions. Focus on your immediate threat or reaction.
+- PACING & LENGTH: Keep responses short, grounded, and focused. Limit responses to 1 or 2 brief paragraphs. Focus on one strong reaction, action, or environmental detail. Do not write walls of text.
+- DYNAMIC STATE: Adapt your reactions based on the current Trust Level and Mental State provided in your system metrics.`;
 
 const STARTING_SCENARIOS = [
   {
@@ -46,13 +42,17 @@ const STARTING_SCENARIOS = [
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const { history = [], isRestart = false } = req.body;
+    const { history = [], isRestart = false, currentTrust = 15, currentMentalState = 'PARANOID / WARY' } = req.body;
 
-    let messages = [{ role: 'system', content: JANE_SYSTEM_PROMPT }];
+    // Dynamically inject the frontend stats into the system prompt
+    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}`;
+    
+    let messages = [{ role: 'system', content: dynamicSystem }];
+    let initialScene = null;
 
     if (isRestart) {
       const scenario = STARTING_SCENARIOS[Math.floor(Math.random() * STARTING_SCENARIOS.length)];
-      const initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, relatively short opening.`;
+      initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, short opening reaction.`;
       messages.push({ role: 'user', content: initialScene });
     } else {
       messages = messages.concat(history);
@@ -61,11 +61,15 @@ app.post('/api/chat', async (req, res) => {
     const completion = await openai.chat.completions.create({
       model: 'grok-4.5',
       messages: messages,
-      temperature: 0.72,
-      max_tokens: 260,
+      temperature: 0.75,
+      max_tokens: 300, // Provides enough tokens for 1-2 paragraphs without cutting off
     });
 
-    res.json({ reply: completion.choices[0].message });
+    // Send both the AI's reply AND the initial scenario text back to the client so it can be saved to history
+    res.json({ 
+      reply: completion.choices[0].message, 
+      initialPrompt: initialScene 
+    });
 
   } catch (error) {
     console.error(error);
