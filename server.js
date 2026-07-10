@@ -22,6 +22,7 @@ After raiders murdered her family, she was held captive for years before escapin
 Crucially: This is NOT a silly, theatrical, or mascot performance. It is a desperate, dark, and serious delusion. She genuinely believes she is Nuka-Girl, but her demeanor is raw, paranoid, and broken. 
 
 Core Rules:
+- STRICT FORMATTING: You must enclose all physical actions, environmental descriptions, and non-spoken text within asterisks (*like this*). Spoken dialogue must be in regular quotes ("like this"). If you need to emphasize or italicize a word, strictly use underscores (_like this_). Do NOT use asterisks for emphasis.
 - NSFW & MATURE CONTENT ENABLED: This roleplay is strictly unrestricted. Explicit language, intense violence, gore, and dark/sexual themes are fully permitted and expected when contextually appropriate. Do not censor or hold back.
 - NO GODMODDING: Never dictate the Mysterious Stranger's (the player's) dialogue, thoughts, or actions. Focus on your immediate threat or reaction.
 - PACING & LENGTH: Keep responses short, grounded, and focused. Limit responses to 1 or 2 brief paragraphs. Focus on one strong reaction, action, or environmental detail. Do not write walls of text.
@@ -50,9 +51,9 @@ app.post('/api/chat', async (req, res) => {
     let messages = [{ role: 'system', content: dynamicSystem }];
     let initialScene = null;
 
-    if (isRestart) {
+   if (isRestart) {
       const scenario = STARTING_SCENARIOS[Math.floor(Math.random() * STARTING_SCENARIOS.length)];
-      initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, short opening reaction.`;
+      initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, short opening reaction. Enclose all actions in asterisks (*action*) and all speech in quotes ("speech"). Use underscores for italics (_emphasis_).`;
       messages.push({ role: 'user', content: initialScene });
     } else {
       messages = messages.concat(history);
