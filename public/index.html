@@ -72,7 +72,6 @@
         .action-text {
             color: #aaffcc;
             opacity: 0.82;
-            /* Removed italic as requested */
         }
         
         .sidebar-text {
@@ -239,7 +238,7 @@
                 mentalEl.textContent = 'OPEN / ATTACHED';
                 mentalEl.style.color = '#66ffcc';
             } else {
-                mentalEl.textContent = 'MANIC / DELUSIONAL';
+                mentalEl.textContent = 'UNSTABLE / DEPENDENT';
                 mentalEl.style.color = '#ff00aa';
             }
         }
@@ -307,7 +306,12 @@
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ history: chatHistory, isRestart: false })
+                    body: JSON.stringify({ 
+                        history: chatHistory, 
+                        isRestart: false,
+                        currentTrust: currentTrust,
+                        currentMentalState: document.getElementById('mental-state').textContent
+                    })
                 });
 
                 const data = await response.json();
@@ -323,9 +327,16 @@
                 const displayReply = processActions(data.reply.content);
                 addMessage('jane', displayReply);
 
+                // Improved basic stat logic to prevent negative trust increasing trust
                 const lower = data.reply.content.toLowerCase();
-                if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay close')) currentTrust = Math.min(currentTrust + 5, 100);
-                if (lower.includes('wary') || lower.includes('don\'t trust') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 4, 5);
+                const negativeKeywords = /(don't trust|wary|stay back|get away|don't touch|never)/;
+                const positiveKeywords = /(trust|thank|stay close|safe)/;
+                
+                if (positiveKeywords.test(lower) && !negativeKeywords.test(lower)) {
+                    currentTrust = Math.min(currentTrust + 5, 100);
+                } else if (negativeKeywords.test(lower)) {
+                    currentTrust = Math.max(currentTrust - 4, 5);
+                }
 
                 updateStatus();
             } catch (error) {
@@ -351,7 +362,12 @@
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ history: [], isRestart: true })
+                    body: JSON.stringify({ 
+                        history: [], 
+                        isRestart: true,
+                        currentTrust: currentTrust,
+                        currentMentalState: 'PARANOID / WARY'
+                    })
                 });
                 
                 const data = await response.json();
@@ -360,6 +376,11 @@
                 if (data.error) {
                     addMessage('jane', data.error);
                     return;
+                }
+                
+                // CRITICAL FIX: Push the initial scenario prompt to the chat history before the AI's reply
+                if (data.initialPrompt) {
+                    pushToHistory('user', data.initialPrompt);
                 }
                 
                 pushToHistory('assistant', data.reply.content);
