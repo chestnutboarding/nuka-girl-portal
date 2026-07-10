@@ -345,8 +345,8 @@
             } else {
                 let thoughtsHtml = '';
                 if (thoughts) {
-                    // Safely encode thoughts so they don't break the HTML string
-                    const safeThoughts = encodeURIComponent(thoughts);
+                    // Safely encode thoughts and manually escape single quotes
+                    const safeThoughts = encodeURIComponent(thoughts).replace(/'/g, "%27");
                     thoughtsHtml = `
                         <div class="mt-3 flex justify-end">
                             <button onclick="openThoughtsModal(decodeURIComponent('${safeThoughts}'))" 
