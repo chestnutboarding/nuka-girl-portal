@@ -72,7 +72,7 @@
         .action-text {
             color: #aaffcc;
             opacity: 0.82;
-            font-style: italic;
+            /* Removed italic as requested */
         }
         
         .sidebar-text {
@@ -294,7 +294,6 @@
             addMessage('user', displayText);
             input.value = '';
 
-            // Push RAW text to history
             pushToHistory('user', rawText);
 
             const container = document.getElementById('chat-container');
@@ -319,14 +318,11 @@
                     return;
                 }
 
-                // Push raw AI response to history
                 pushToHistory('assistant', data.reply.content);
 
-                // Display formatted version
                 const displayReply = processActions(data.reply.content);
                 addMessage('jane', displayReply);
 
-                // Trust logic
                 const lower = data.reply.content.toLowerCase();
                 if (lower.includes('trust') || lower.includes('thank') || lower.includes('stay close')) currentTrust = Math.min(currentTrust + 5, 100);
                 if (lower.includes('wary') || lower.includes('don\'t trust') || lower.includes('stay back')) currentTrust = Math.max(currentTrust - 4, 5);
@@ -366,10 +362,8 @@
                     return;
                 }
                 
-                // Push opening scenario to history so model remembers it
                 pushToHistory('assistant', data.reply.content);
 
-                // Display it
                 const displayContent = processActions(data.reply.content);
                 addMessage('jane', displayContent);
 
