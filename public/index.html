@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NUKA-GIRL PROTOCOL // v2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -60,13 +60,18 @@
         .message-user {
             background-color: #1a2a1a;
             border-left: 4px solid #00ff9f;
-            margin-left: 18%;
+            margin-left: 10%;
         }
         
         .message-jane {
             background-color: #0f1a0f;
             border-left: 4px solid #ff00aa;
-            margin-right: 18%;
+            margin-right: 10%;
+        }
+
+        @media (min-width: 768px) {
+            .message-user { margin-left: 18%; }
+            .message-jane { margin-right: 18%; }
         }
         
         .action-text {
@@ -133,58 +138,98 @@
             box-shadow: 0 0 20px rgba(255, 0, 170, 0.15);
             font-style: italic;
             line-height: 1.6;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        /* Custom Scrollbar for Factions Box */
-        .faction-scroll::-webkit-scrollbar {
+        /* Custom Scrollbar */
+        .faction-scroll::-webkit-scrollbar, .chat-container::-webkit-scrollbar {
             width: 4px;
         }
-        .faction-scroll::-webkit-scrollbar-track {
+        .faction-scroll::-webkit-scrollbar-track, .chat-container::-webkit-scrollbar-track {
             background: #0a0f0a;
         }
-        .faction-scroll::-webkit-scrollbar-thumb {
+        .faction-scroll::-webkit-scrollbar-thumb, .chat-container::-webkit-scrollbar-thumb {
             background: #00ff9f;
             border-radius: 2px;
         }
+
+        /* Responsive Sidebar Styles */
+        #sidebar {
+            transition: width 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.2s ease-in-out;
+        }
+        .sidebar-collapsed {
+            width: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            border-right: none !important;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden !important;
+        }
+        .sidebar-backdrop {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background-color: rgba(5, 8, 5, 0.8);
+            z-index: 40;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-backdrop.active {
+            display: block;
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-[#0a0f0a] h-[100dvh] flex flex-col overflow-hidden">
     <!-- Header -->
-    <div class="nuka-header p-3 flex items-center justify-between border-b border-[#00ff9f]">
-        <div class="flex items-center gap-x-3">
-            <i class="fa-solid fa-radiation text-3xl text-[#ff00aa]"></i>
+    <div class="nuka-header p-2 md:p-3 flex items-center justify-between border-b border-[#00ff9f] shrink-0">
+        <div class="flex items-center gap-x-2 md:gap-x-3">
+            <!-- Sidebar Toggle Button -->
+            <button onclick="toggleSidebar()" class="fallout-btn px-2.5 py-1 font-bold flex items-center justify-center text-lg" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <i class="fa-solid fa-radiation text-2xl md:text-3xl text-[#ff00aa]"></i>
             <div>
-                <h1 class="text-3xl font-bold tracking-[2px]" style="font-family: 'VT323', monospace; text-shadow: 0 0 5px #00ff9f;">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-[1px] md:tracking-[2px] leading-tight" style="font-family: 'VT323', monospace; text-shadow: 0 0 5px #00ff9f;">
                     NUKA-GIRL PROTOCOL
                 </h1>
-                <p class="text-xs text-[#ff00aa] -mt-1">v2.6 • POWERED BY GROK</p>
+                <p class="text-[10px] md:text-xs text-[#ff00aa] -mt-1">v2.6 • POWERED BY GROK</p>
             </div>
         </div>
         
-        <div class="flex items-center gap-x-2">
-            <div class="px-3 py-0.5 bg-[#112211] border border-[#00ff9f] text-xs flex items-center gap-x-1.5">
+        <div class="flex items-center gap-x-1.5 md:gap-x-2">
+            <div class="hidden sm:flex px-2 md:px-3 py-0.5 bg-[#112211] border border-[#00ff9f] text-[10px] md:text-xs items-center gap-x-1.5">
                 <i class="fa-solid fa-wifi"></i>
-                <span>CONNECTED TO GROK-4.5</span>
+                <span>CONNECTED</span>
             </div>
             
             <button onclick="restartPortal()" 
-                    class="restart-btn px-4 py-1 font-bold flex items-center gap-x-1.5">
+                    class="restart-btn px-2.5 md:px-4 py-1 font-bold flex items-center gap-x-1.5 text-sm md:text-base">
                 <i class="fa-solid fa-redo"></i>
-                <span>RESTART</span>
+                <span class="hidden xs:inline sm:inline">RESTART</span>
             </button>
         </div>
     </div>
 
-    <div class="flex h-[calc(100vh-65px)]">
-        
+    <!-- Main Workspace -->
+    <div class="flex flex-1 relative overflow-hidden min-h-0">
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop md:hidden" onclick="toggleSidebar()"></div>
+
         <!-- Sidebar -->
-        <div class="w-72 border-r border-[#00ff9f] bg-[#0a0f0a] p-3 flex flex-col">
-            <div class="mb-3">
-                <h2 class="text-lg font-bold flex items-center gap-x-2">
-                    <i class="fa-solid fa-user-astronaut"></i>
-                    <span>JANE / NUKA-GIRL</span>
-                </h2>
-                <div class="text-xs text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
+        <div id="sidebar" class="w-72 border-r border-[#00ff9f] bg-[#0a0f0a] p-3 flex flex-col absolute md:relative z-50 h-full shrink-0">
+            <div class="mb-3 flex justify-between items-start">
+                <div>
+                    <h2 class="text-base md:text-lg font-bold flex items-center gap-x-2">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                        <span>JANE / NUKA-GIRL</span>
+                    </h2>
+                    <div class="text-xs text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
+                </div>
+                <!-- Close button for mobile inside sidebar -->
+                <button onclick="toggleSidebar()" class="md:hidden text-[#ff00aa] hover:text-white text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <!-- Current Status Box -->
@@ -244,22 +289,22 @@
         </div>
 
         <!-- Main Chat Area -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col min-w-0">
             
             <!-- Chat Header -->
-            <div class="bg-[#112211] px-4 py-2 border-b border-[#00ff9f] flex items-center justify-between text-sm">
-                <div>
-                    <span class="font-bold">CURRENT SCENARIO:</span> 
-                    <span id="scenario-title" class="text-[#ffcc00]">Waiting for restart...</span>
+            <div class="bg-[#112211] px-3 md:px-4 py-2 border-b border-[#00ff9f] flex items-center justify-between text-xs md:text-sm shrink-0">
+                <div class="truncate pr-2">
+                    <span class="font-bold">SCENARIO:</span> 
+                    <span id="scenario-title" class="text-[#ffcc00] truncate">Waiting for restart...</span>
                 </div>
-                <div class="text-xs px-2 py-0.5 bg-[#0a0f0a] border border-[#00ff9f]">
-                    <i class="fa-solid fa-globe"></i> COMMONWEALTH
+                <div class="text-xs px-2 py-0.5 bg-[#0a0f0a] border border-[#00ff9f] shrink-0">
+                    <i class="fa-solid fa-globe"></i> <span class="hidden sm:inline">COMMONWEALTH</span>
                 </div>
             </div>
 
             <!-- Chat Messages -->
             <div id="chat-container" 
-                 class="flex-1 p-4 overflow-y-auto chat-container bg-[#050805]">
+                 class="flex-1 p-3 md:p-4 overflow-y-auto chat-container bg-[#050805]">
                 <div class="chat-welcome flex items-center justify-center h-full">
                     <div class="text-center">
                         <i class="fa-solid fa-radiation text-4xl mb-2 block"></i>
@@ -269,21 +314,22 @@
             </div>
 
             <!-- Input Area -->
-            <div class="p-3 border-t border-[#00ff9f] bg-[#0a0f0a]">
-                <div class="flex gap-x-2">
+            <div class="p-2 md:p-3 border-t border-[#00ff9f] bg-[#0a0f0a] shrink-0">
+                <div class="flex gap-x-1.5 md:gap-x-2">
                     <textarea id="user-input" 
-                              class="terminal-input flex-1 p-3 resize-none h-16 text-base"
+                              class="terminal-input flex-1 p-2 md:p-3 resize-none h-14 md:h-16 text-sm md:text-base"
                               placeholder="What does the Mysterious Stranger do or say?"
                               onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                    
                     <button onclick="continueStory()" 
-                            class="fallout-btn px-4 font-bold text-lg flex items-center justify-center" title="Let Nuka-Girl continue">
+                            class="fallout-btn px-3 md:px-4 font-bold text-base md:text-lg flex items-center justify-center" title="Let Nuka-Girl continue">
                         <i class="fa-solid fa-forward-step"></i>
                     </button>
                     
                     <button onclick="sendMessage()" 
-                            class="fallout-btn px-6 font-bold text-lg flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane mr-1.5"></i>
-                        <span>SEND</span>
+                            class="fallout-btn px-4 md:px-6 font-bold text-base md:text-lg flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane sm:mr-1.5"></i>
+                        <span class="hidden sm:inline">SEND</span>
                     </button>
                 </div>
             </div>
@@ -303,7 +349,7 @@
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
-            <div id="thoughts-text" class="whitespace-pre-wrap text-[17px]"></div>
+            <div id="thoughts-text" class="whitespace-pre-wrap text-[15px] md:text-[17px]"></div>
         </div>
     </div>
 
@@ -314,10 +360,8 @@
         let currentTrust = 15;
         let isProcessing = false;
 
-        // Faction Categorization
         const majorFactions = ["Brotherhood of Steel", "The Railroad", "Minutemen", "The Institute"];
 
-        // All Major and Minor Fallout 4 Factions Tracker
         let factions = {
             "Brotherhood of Steel": 10,
             "The Railroad": 15,
@@ -330,6 +374,27 @@
             "The Gunners": 0,
             "Triggermen": 5
         };
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('sidebar-collapsed');
+            if (backdrop) {
+                backdrop.classList.toggle('active');
+            }
+        }
+
+        function handleResponsiveLayout() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('sidebar-collapsed');
+                if (backdrop) backdrop.classList.remove('active');
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                if (backdrop) backdrop.classList.remove('active');
+            }
+        }
 
         function renderFactions() {
             const container = document.getElementById('faction-container');
@@ -473,7 +538,6 @@
             if (aiData.trust_shift) currentTrust = Math.max(5, Math.min(100, currentTrust + aiData.trust_shift));
             if (aiData.fame_shift) currentFame = Math.max(0, Math.min(100, currentFame + aiData.fame_shift));
             
-            // Process Faction Affinity Changes & Maxout Alerts
             if (aiData.faction_shifts && typeof aiData.faction_shifts === 'object') {
                 for (const [factionName, shift] of Object.entries(aiData.faction_shifts)) {
                     if (factions[factionName] !== undefined && shift !== 0) {
@@ -486,7 +550,6 @@
                             showToast("AFFINITY DECREASED", `${factionName} affinity dropped to ${factions[factionName]}% (${shift}%)`);
                         }
                         
-                        // Check for hitting 100% Max Affinity
                         if (oldAffinity < 100 && factions[factionName] >= 100) {
                             if (factionName === "The Institute") {
                                 showToast("INSTITUTE CONTROLLED", `You took over The Institute! Permanent female Synth follower unlocked!`, true);
@@ -609,7 +672,6 @@
             currentFame = 12;
             currentTrust = 15;
             
-            // Reset Factions
             factions = {
                 "Brotherhood of Steel": 10, "The Railroad": 15, "Minutemen": 20,
                 "The Institute": 0, "Atom Cats": 25, "Children of Atom": 5,
@@ -650,7 +712,10 @@
             }
         }
 
-        window.onload = () => updateStatus();
+        window.onload = () => {
+            updateStatus();
+            handleResponsiveLayout();
+        };
     </script>
 </body>
 </html>
