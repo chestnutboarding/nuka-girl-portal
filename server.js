@@ -46,6 +46,7 @@ The player is the Mysterious Stranger, wearing a long beige or tan trench coat, 
 - Above all else: Make sense. 
 
 [FACTION & RANDOM EVENT PROTOCOLS]
+- Mandatory Event Frequency: The Commonwealth is dangerous and unpredictable. You MUST proactively initiate a random wasteland encounter, NPC interruption, faction mission, or hostile ambush roughly every 4 to 6 responses. Do not let the scene stagnate in dialogue; outside forces must regularly interrupt Nuka-Girl and the Mysterious Stranger.
 - Event Weighting & Deactivation: Random encounters and missions involving Minor Factions (Atom Cats, Children of Atom, Goodneighbor, Diamond City, The Gunners, Triggermen) must occur significantly MORE frequently than random events for Major Factions (Brotherhood of Steel, The Railroad, Minutemen, The Institute). Once any faction (Major or Minor) reaches 100% affinity and their unlock/quest is triggered, you MUST permanently cease generating random events for that specific faction so the player can focus on the remaining ones.
 - Faction Mission Rewards (+10 Boost): Whenever a random event mission or objective involving a specific faction is successfully completed, you MUST reward a +10 affinity increase in the JSON output ("faction_shifts") for that faction (instead of 25).
 - Institute Hostile Ambushes: Random events involving The Institute must exclusively be random ambushes by hostile Synths or Coursers attacking you and Nuka-Girl. Surviving or fighting off these Institute ambushes must LOWER your Institute affinity in the JSON output, rather than raising it. You can NEVER reach 100% Institute affinity through normal quests or random events.
@@ -119,14 +120,29 @@ app.post('/api/chat', async (req, res) => {
       factions = {}
     } = req.body;
 
+    // --- RANDOM EVENT INJECTION LOGIC ---
+    // Calculates user turns based on the size of the history array
+    const turnCount = Math.floor(history.length / 2);
+    
+    // Triggers an event exactly every 4 turns, OR a 25% random chance on any turn after the 3rd
+    const shouldTriggerEvent = (turnCount > 0 && turnCount % 4 === 0) || (turnCount > 3 && Math.random() < 0.25);
+    
+    let eventDirective = "";
+    if (shouldTriggerEvent && !isRestart) {
+      eventDirective = "\n\n[SYSTEM DIRECTIVE: RANDOM EVENT OVERRIDE! You MUST immediately interrupt the current scene by spawning a random encounter, hostile ambush, or faction mission right now! Pull from the Minor Factions or an Institute Synth ambush to drive the plot forward with unexpected wasteland chaos. Do not let the dialogue stagnate.]";
+    }
+    // ------------------------------------
+
     const memoryString = memoryBank.length > 0 ? `\n\n[STORY MILESTONES]\n- ${memoryBank.join('\n- ')}` : '';
     const factionString = Object.entries(factions).map(([k, v]) => `${k}: ${v}%`).join(' | ');
-    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100\nFaction Affinities -> [ ${factionString} ]${memoryString}`;
+    
+    // Injects the event override directive directly into the active prompt for this turn
+    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100\nFaction Affinities -> [ ${factionString} ]${memoryString}${eventDirective}`;
     
     let messages = [{ role: 'system', content: dynamicSystem }];
     let initialScene = null;
 
-   if (isRestart) {
+    if (isRestart) {
       const scenario = STARTING_SCENARIOS[Math.floor(Math.random() * STARTING_SCENARIOS.length)];
       initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, fast-paced opening reaction. You may include enemy dialogue in separate paragraphs. Enclose all actions in asterisks (*action*) and all speech in quotes ("speech"). Use underscores for italics (_emphasis_).`;
       messages.push({ role: 'user', content: initialScene });
@@ -134,7 +150,7 @@ app.post('/api/chat', async (req, res) => {
       messages = messages.concat(history);
     }
 
-   const completion = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: 'grok-4.5',
       messages: messages,
       temperature: 0.85, 
