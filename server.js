@@ -45,6 +45,14 @@ The player is the Mysterious Stranger, wearing a long beige or tan trench coat, 
 - Dynamic State: Let your current Trust Level and Mental State organically dictate your tone.
 - Above all else: Make sense. 
 
+[FACTION & RANDOM EVENT PROTOCOLS]
+- Iconic Characters & Random Events: Frequently and organically introduce random encounters or missions involving iconic Fallout 4 figures (e.g., Nick Valentine, Paladin Danse, John Hancock, Piper Wright, Preston Garvey, Deacon, Arthur Maxson, X6-88, Zeke, Glory, or Mother Isolde) as well as faction patrols (including Institute Courser strike teams and teleporting Synth squads).
+- Faction Mission Rewards (+25 Boost): Whenever a random event mission or objective involving a specific faction is successfully completed, you MUST reward a massive +25 affinity increase in the JSON output ("faction_shifts") for that faction.
+- Combat Reinforcements: Check the current Faction Affinity values provided in [CURRENT METRICS]. If a fight breaks out and your affinity with a nearby or relevant faction is high (>50%), there is a strong probability they will spawn squads (or teleport in Synths/Coursers) to actively fight alongside you.
+- Surface Factions Max Affinity (100% - Institute Infiltration): If the Brotherhood of Steel, The Railroad, or Minutemen reach 100% affinity, that faction's leadership MUST approach you with an overriding, high-stakes endgame quest to infiltrate and destroy or sabotage The Institute.
+- The Institute Max Affinity (100% - Surface Purge): If The Institute reaches 100% affinity, Father (Shaun) or an elite Courser commander MUST approach you with an overriding, high-stakes endgame quest to eliminate the surface faction leadership (destroying the Brotherhood, Railroad, or rebellious elements) to permanently secure Commonwealth dominance for Mankind-Redefined.
+- Minor Factions Max Affinity (100% - Permanent Follower): If a MINOR faction (Atom Cats, Children of Atom, Goodneighbor, Diamond City, The Gunners, Triggermen) reaches 100% affinity, that faction MUST reward you by dispatching a unique, elite permanent follower/companion from their ranks who joins your squad and fights alongside you and Nuka-Girl for the remainder of the entire story. Never forget they are traveling with you once unlocked.
+
 [OUTPUT FORMAT]
 You must respond strictly in JSON format using this exact structure:
 {
@@ -52,6 +60,18 @@ You must respond strictly in JSON format using this exact structure:
   "internal_thoughts": "Her vulnerable, intimate, and raw inner monologue regarding the current situation.",
   "trust_shift": <integer between -5 and 5 representing how this interaction altered her trust>,
   "fame_shift": <integer between 0 and 5 representing if this action increased her public legend>,
+  "faction_shifts": {
+    "Brotherhood of Steel": <integer change, e.g., 0, 25, or -5>,
+    "The Railroad": 0,
+    "Minutemen": 0,
+    "The Institute": 0,
+    "Atom Cats": 0,
+    "Children of Atom": 0,
+    "Goodneighbor": 0,
+    "Diamond City": 0,
+    "The Gunners": 0,
+    "Triggermen": 0
+  },
   "key_event": "<string briefly summarizing any major plot milestone that just occurred, or null if nothing major happened>"
 }`;
 
@@ -65,6 +85,16 @@ const STARTING_SCENARIOS = [
     title: "The Drowned Star",
     location: "Flooded Nuka-Cola warehouse",
     description: "Jane is waist-deep in irradiated water. Mirelurks are closing in. Raiders watch from above. A stranger suddenly appears beside her."
+  },
+  {
+    title: "Crossfire at Cambridge",
+    location: "Cambridge Police Station Perimeter",
+    description: "Feral ghouls are swarming a fortified garage. Paladin Danse and a Brotherhood squad are firing from the rooftop. Jane is pinned behind an abandoned APC when a stranger arrives."
+  },
+  {
+    title: "Neon Shadows",
+    location: "Goodneighbor Alleyway",
+    description: "Triggermen have surrounded Jane outside the Third Rail. John Hancock is watching from a balcony above, smoking a cigarette, waiting to see how she handles it as a stranger steps into the alley."
   }
 ];
 
@@ -76,11 +106,13 @@ app.post('/api/chat', async (req, res) => {
       currentTrust = 15, 
       currentFame = 12,
       currentMentalState = 'PARANOID / WARY',
-      memoryBank = []
+      memoryBank = [],
+      factions = {}
     } = req.body;
 
     const memoryString = memoryBank.length > 0 ? `\n\n[STORY MILESTONES]\n- ${memoryBank.join('\n- ')}` : '';
-    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100${memoryString}`;
+    const factionString = Object.entries(factions).map(([k, v]) => `${k}: ${v}%`).join(' | ');
+    const dynamicSystem = `${JANE_SYSTEM_PROMPT}\n\n[CURRENT METRICS]\nTrust Level: ${currentTrust}/100\nMental State: ${currentMentalState}\nFame Level: ${currentFame}/100\nFaction Affinities -> [ ${factionString} ]${memoryString}`;
     
     let messages = [{ role: 'system', content: dynamicSystem }];
     let initialScene = null;
@@ -97,7 +129,9 @@ app.post('/api/chat', async (req, res) => {
       model: 'grok-4.5',
       messages: messages,
       temperature: 0.85, 
-      max_tokens: 500, 
+      max_tokens: 600, 
+      frequency_penalty: 0.4,
+      presence_penalty: 0.4,
       response_format: { type: "json_object" }
     });
 
