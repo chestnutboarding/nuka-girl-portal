@@ -86,13 +86,11 @@ app.post('/api/chat', async (req, res) => {
       messages = messages.concat(history);
     }
 
-    const completion = await openai.chat.completions.create({
+   const completion = await openai.chat.completions.create({
       model: 'grok-4.5',
       messages: messages,
       temperature: 0.85, 
       max_tokens: 500, 
-      frequency_penalty: 0.4, // Penalizes repeating exact words and phrases
-      presence_penalty: 0.4,  // Encourages introducing new topics and advancing the scene
       response_format: { type: "json_object" }
     });
 
