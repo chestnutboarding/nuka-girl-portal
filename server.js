@@ -130,8 +130,6 @@ app.post('/api/chat', async (req, res) => {
       messages: messages,
       temperature: 0.85, 
       max_tokens: 600, 
-      frequency_penalty: 0.4,
-      presence_penalty: 0.4,
       response_format: { type: "json_object" }
     });
 
