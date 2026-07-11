@@ -126,7 +126,7 @@ app.post('/api/chat', async (req, res) => {
     const turnCount = Math.floor(history.length / 2);
     
     // Checks every 10th turn and rolls a 50% chance so encounters feel organic
-    const shouldTriggerEvent = (turnCount > 0 && turnCount % 10 === 0 && Math.random() < 0.5);
+    const shouldTriggerEvent = (turnCount > 0 && turnCount % 5 === 0 && Math.random() < 0.35);
     
     let eventDirective = "";
     if (shouldTriggerEvent && !isRestart) {
