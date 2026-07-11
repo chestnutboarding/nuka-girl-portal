@@ -46,7 +46,8 @@ The player is the Mysterious Stranger, wearing a long beige or tan trench coat, 
 - Above all else: Make sense. 
 
 [FACTION & RANDOM EVENT PROTOCOLS]
-- Mandatory Event Frequency: The Commonwealth is dangerous and unpredictable. You MUST proactively initiate a random wasteland encounter, NPC interruption, faction mission, or hostile ambush roughly every 4 to 6 responses. Do not let the scene stagnate in dialogue; outside forces must regularly interrupt Nuka-Girl and the Mysterious Stranger.
+- Mandatory Event Frequency: The Commonwealth is dangerous and unpredictable, but conversations need room to breathe. You MUST proactively initiate a random wasteland encounter, NPC interruption, or faction mission roughly every 10 responses. Do not constantly interrupt dialogue.
+- Hostile Ambushes vs. Faction Missions: The Institute (Synths/Coursers) and generic Raiders are the ONLY groups allowed to attack you or launch hostile ambushes. Minor Factions (Triggermen, The Gunners, Children of Atom, Atom Cats, Goodneighbor, Diamond City, etc.) must NEVER attack you unprovoked. Whenever a Minor Faction event occurs, their members must approach you peaceably to ask for help or assign a mission to wipe out Raiders.
 - Event Weighting & Deactivation: Random encounters and missions involving Minor Factions (Atom Cats, Children of Atom, Goodneighbor, Diamond City, The Gunners, Triggermen) must occur significantly MORE frequently than random events for Major Factions (Brotherhood of Steel, The Railroad, Minutemen, The Institute). Once any faction (Major or Minor) reaches 100% affinity and their unlock/quest is triggered, you MUST permanently cease generating random events for that specific faction so the player can focus on the remaining ones.
 - Faction Mission Rewards (+10 Boost): Whenever a random event mission or objective involving a specific faction is successfully completed, you MUST reward a +10 affinity increase in the JSON output ("faction_shifts") for that faction (instead of 25).
 - Institute Hostile Ambushes: Random events involving The Institute must exclusively be random ambushes by hostile Synths or Coursers attacking you and Nuka-Girl. Surviving or fighting off these Institute ambushes must LOWER your Institute affinity in the JSON output, rather than raising it. You can NEVER reach 100% Institute affinity through normal quests or random events.
@@ -124,12 +125,12 @@ app.post('/api/chat', async (req, res) => {
     // Calculates user turns based on the size of the history array
     const turnCount = Math.floor(history.length / 2);
     
-    // Triggers an event exactly every 4 turns, OR a 25% random chance on any turn after the 3rd
-    const shouldTriggerEvent = (turnCount > 0 && turnCount % 4 === 0) || (turnCount > 3 && Math.random() < 0.25);
+    // Checks every 10th turn and rolls a 50% chance so encounters feel organic
+    const shouldTriggerEvent = (turnCount > 0 && turnCount % 10 === 0 && Math.random() < 0.5);
     
     let eventDirective = "";
     if (shouldTriggerEvent && !isRestart) {
-      eventDirective = "\n\n[SYSTEM DIRECTIVE: RANDOM EVENT OVERRIDE! You MUST immediately interrupt the current scene by spawning a random encounter, hostile ambush, or faction mission right now! Pull from the Minor Factions or an Institute Synth ambush to drive the plot forward with unexpected wasteland chaos. Do not let the dialogue stagnate.]";
+      eventDirective = "\n\n[SYSTEM DIRECTIVE: RANDOM EVENT OVERRIDE! You MUST immediately introduce a random wasteland event right now! REMEMBER: Only The Institute (Synths/Coursers) or generic Raiders can attack as hostiles. If you generate an encounter from Minor Factions like Triggermen, Gunners, Children of Atom, etc., they MUST approach peaceably to ask you and Nuka-Girl for assistance in wiping out Raiders.]";
     }
     // ------------------------------------
 
