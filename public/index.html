@@ -482,12 +482,16 @@
                         
                         if (shift > 0) {
                             showToast("AFFINITY INCREASED", `${factionName} affinity rose to ${factions[factionName]}% (${shift > 0 ? '+' : ''}${shift}%)`);
+                        } else if (shift < 0) {
+                            showToast("AFFINITY DECREASED", `${factionName} affinity dropped to ${factions[factionName]}% (${shift}%)`);
                         }
                         
                         // Check for hitting 100% Max Affinity
                         if (oldAffinity < 100 && factions[factionName] >= 100) {
-                            if (majorFactions.includes(factionName)) {
-                                showToast("MAJOR FACTION MAXED", `${factionName} has initiated the mission to infiltrate The Institute!`, true);
+                            if (factionName === "The Institute") {
+                                showToast("INSTITUTE CONTROLLED", `You took over The Institute! Permanent female Synth follower unlocked!`, true);
+                            } else if (majorFactions.includes(factionName)) {
+                                showToast("MAJOR FACTION MAXED", `${factionName} has assigned a major high-stakes operation!`, true);
                             } else {
                                 showToast("PERMANENT FOLLOWER UNLOCKED", `An elite warrior from ${factionName} has permanently joined your squad!`, true);
                             }
