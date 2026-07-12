@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NUKA-GIRL PROTOCOL // v2.6</title>
+    <title>NUKA-GIRL PROTOCOL // v2.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -184,7 +184,6 @@
     <!-- Header -->
     <div class="nuka-header p-2 md:p-3 flex items-center justify-between border-b border-[#00ff9f] shrink-0">
         <div class="flex items-center gap-x-2 md:gap-x-3">
-            <!-- Sidebar Toggle Button -->
             <button onclick="toggleSidebar()" class="fallout-btn px-2.5 py-1 font-bold flex items-center justify-center text-lg" title="Toggle Sidebar">
                 <i class="fa-solid fa-bars"></i>
             </button>
@@ -193,7 +192,7 @@
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-[1px] md:tracking-[2px] leading-tight" style="font-family: 'VT323', monospace; text-shadow: 0 0 5px #00ff9f;">
                     NUKA-GIRL PROTOCOL
                 </h1>
-                <p class="text-[10px] md:text-xs text-[#ff00aa] -mt-1">v2.6 • POWERED BY GROK</p>
+                <p class="text-[10px] md:text-xs text-[#ff00aa] -mt-1">v2.7 • POWERED BY GROK</p>
             </div>
         </div>
         
@@ -226,7 +225,6 @@
                     </h2>
                     <div class="text-xs text-[#ff00aa]">The Commonwealth's Most Wanted Star</div>
                 </div>
-                <!-- Close button for mobile inside sidebar -->
                 <button onclick="toggleSidebar()" class="md:hidden text-[#ff00aa] hover:text-white text-lg p-1">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -362,17 +360,33 @@
 
         const majorFactions = ["Brotherhood of Steel", "The Railroad", "Minutemen", "The Institute"];
 
+        // Updated Faction hierarchy: Major Factions -> Goodneighbor & Diamond City -> Settlements
         let factions = {
             "Brotherhood of Steel": 10,
             "The Railroad": 15,
             "Minutemen": 20,
             "The Institute": 0,
-            "Atom Cats": 25,
-            "Children of Atom": 5,
             "Goodneighbor": 15,
             "Diamond City": 20,
-            "The Gunners": 0,
-            "Triggermen": 5
+            "Sanctuary Hills": 0,
+            "Red Rocket Truck Stop": 0,
+            "Abernathy Farm": 0,
+            "Tenpines Bluff": 0,
+            "Starlight Drive-In": 0,
+            "Sunshine Tidings Co-op": 0,
+            "Hangman's Alley": 0,
+            "The Castle": 0,
+            "Finch Farm": 0,
+            "Greentop Nursery": 0,
+            "Nordhagen Beach": 0,
+            "Oberland Station": 0,
+            "Graygarden": 0,
+            "Somerville Place": 0,
+            "Warwick Homestead": 0,
+            "Bunker Hill": 0,
+            "The Slog": 0,
+            "Covenant": 0,
+            "Spectacle Island": 0
         };
 
         function toggleSidebar() {
@@ -433,11 +447,14 @@
             if (currentTrust < 25) {
                 mentalEl.textContent = 'PARANOID / WARY';
                 mentalEl.style.color = '#ff6666';
-            } else if (currentTrust > 60) {
+            } else if (currentTrust < 75) {
                 mentalEl.textContent = 'OPEN / ATTACHED';
                 mentalEl.style.color = '#66ffcc';
+            } else if (currentTrust < 100) {
+                mentalEl.textContent = 'TRUSTING / INTIMATE';
+                mentalEl.style.color = '#ff99cc';
             } else {
-                mentalEl.textContent = 'UNSTABLE / DEPENDENT';
+                mentalEl.textContent = 'IN LOVE / DEVOTED';
                 mentalEl.style.color = '#ff00aa';
             }
 
@@ -550,13 +567,16 @@
                             showToast("AFFINITY DECREASED", `${factionName} affinity dropped to ${factions[factionName]}% (${shift}%)`);
                         }
                         
+                        // Removed all follower unlocking toasts
                         if (oldAffinity < 100 && factions[factionName] >= 100) {
                             if (factionName === "The Institute") {
-                                showToast("INSTITUTE CONTROLLED", `You took over The Institute! Permanent female Synth follower unlocked!`, true);
+                                showToast("INSTITUTE CONTROLLED", `You took over The Institute! Leadership secured!`, true);
                             } else if (majorFactions.includes(factionName)) {
                                 showToast("MAJOR FACTION MAXED", `${factionName} has assigned a major high-stakes operation!`, true);
+                            } else if (factionName === "Diamond City" || factionName === "Goodneighbor") {
+                                showToast("MINOR FACTION MAXED", `${factionName} affinity maximized! Random events ceased.`, true);
                             } else {
-                                showToast("PERMANENT FOLLOWER UNLOCKED", `An elite warrior from ${factionName} has permanently joined your squad!`, true);
+                                showToast("SETTLEMENT ALLIANCE", `${factionName} is now fully allied! Random events ceased.`, true);
                             }
                         }
                     }
@@ -672,10 +692,16 @@
             currentFame = 12;
             currentTrust = 15;
             
+            // Updated reset to match new Faction & Settlement hierarchy
             factions = {
                 "Brotherhood of Steel": 10, "The Railroad": 15, "Minutemen": 20,
-                "The Institute": 0, "Atom Cats": 25, "Children of Atom": 5,
-                "Goodneighbor": 15, "Diamond City": 20, "The Gunners": 0, "Triggermen": 5
+                "The Institute": 0, "Goodneighbor": 15, "Diamond City": 20,
+                "Sanctuary Hills": 0, "Red Rocket Truck Stop": 0, "Abernathy Farm": 0,
+                "Tenpines Bluff": 0, "Starlight Drive-In": 0, "Sunshine Tidings Co-op": 0,
+                "Hangman's Alley": 0, "The Castle": 0, "Finch Farm": 0,
+                "Greentop Nursery": 0, "Nordhagen Beach": 0, "Oberland Station": 0,
+                "Graygarden": 0, "Somerville Place": 0, "Warwick Homestead": 0,
+                "Bunker Hill": 0, "The Slog": 0, "Covenant": 0, "Spectacle Island": 0
             };
             
             const container = document.getElementById('chat-container');
