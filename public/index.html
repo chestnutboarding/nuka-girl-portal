@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NUKA-GIRL PROTOCOL // v2.7</title>
+    <title>NUKA-GIRL PROTOCOL // v2.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -192,7 +192,7 @@
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-[1px] md:tracking-[2px] leading-tight" style="font-family: 'VT323', monospace; text-shadow: 0 0 5px #00ff9f;">
                     NUKA-GIRL PROTOCOL
                 </h1>
-                <p class="text-[10px] md:text-xs text-[#ff00aa] -mt-1">v2.7 • POWERED BY GROK</p>
+                <p class="text-[10px] md:text-xs text-[#ff00aa] -mt-1">v2.8 • POWERED BY GROK</p>
             </div>
         </div>
         
@@ -360,7 +360,7 @@
 
         const majorFactions = ["Brotherhood of Steel", "The Railroad", "Minutemen", "The Institute"];
 
-        // Updated Faction hierarchy: Major Factions -> Goodneighbor & Diamond City -> Settlements
+        // Updated Faction hierarchy: Major Factions -> Goodneighbor & Diamond City -> Settlements (The Castle removed)
         let factions = {
             "Brotherhood of Steel": 10,
             "The Railroad": 15,
@@ -375,7 +375,6 @@
             "Starlight Drive-In": 0,
             "Sunshine Tidings Co-op": 0,
             "Hangman's Alley": 0,
-            "The Castle": 0,
             "Finch Farm": 0,
             "Greentop Nursery": 0,
             "Nordhagen Beach": 0,
@@ -567,7 +566,7 @@
                             showToast("AFFINITY DECREASED", `${factionName} affinity dropped to ${factions[factionName]}% (${shift}%)`);
                         }
                         
-                        // Removed all follower unlocking toasts
+                        // Follower unlocking toasts removed
                         if (oldAffinity < 100 && factions[factionName] >= 100) {
                             if (factionName === "The Institute") {
                                 showToast("INSTITUTE CONTROLLED", `You took over The Institute! Leadership secured!`, true);
@@ -692,13 +691,13 @@
             currentFame = 12;
             currentTrust = 15;
             
-            // Updated reset to match new Faction & Settlement hierarchy
+            // Updated reset (The Castle removed)
             factions = {
                 "Brotherhood of Steel": 10, "The Railroad": 15, "Minutemen": 20,
                 "The Institute": 0, "Goodneighbor": 15, "Diamond City": 20,
                 "Sanctuary Hills": 0, "Red Rocket Truck Stop": 0, "Abernathy Farm": 0,
                 "Tenpines Bluff": 0, "Starlight Drive-In": 0, "Sunshine Tidings Co-op": 0,
-                "Hangman's Alley": 0, "The Castle": 0, "Finch Farm": 0,
+                "Hangman's Alley": 0, "Finch Farm": 0,
                 "Greentop Nursery": 0, "Nordhagen Beach": 0, "Oberland Station": 0,
                 "Graygarden": 0, "Somerville Place": 0, "Warwick Homestead": 0,
                 "Bunker Hill": 0, "The Slog": 0, "Covenant": 0, "Spectacle Island": 0
