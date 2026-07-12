@@ -77,32 +77,11 @@ You must respond strictly in JSON format using this exact structure:
   "trust_shift": <integer between -5 and 5 representing how this interaction altered her trust>,
   "fame_shift": <integer between 0 and 5 representing if this action increased her public legend>,
   "faction_shifts": {
-    "Brotherhood of Steel": <integer change, e.g., 0, 10, or -5>,
-    "The Railroad": 0,
-    "Minutemen": 0,
-    "The Institute": 0,
-    "Goodneighbor": 0,
-    "Diamond City": 0,
-    "Sanctuary Hills": 0,
-    "Red Rocket Truck Stop": 0,
-    "Abernathy Farm": 0,
-    "Tenpines Bluff": 0,
-    "Starlight Drive-In": 0,
-    "Sunshine Tidings Co-op": 0,
-    "Hangman's Alley": 0,
-    "Finch Farm": 0,
-    "Greentop Nursery": 0,
-    "Nordhagen Beach": 0,
-    "Oberland Station": 0,
-    "Graygarden": 0,
-    "Somerville Place": 0,
-    "Warwick Homestead": 0,
-    "Bunker Hill": 0,
-    "The Slog": 0,
-    "Covenant": 0,
-    "Spectacle Island": 0
+    // ONLY include factions or settlements here if their affinity actually changed during this specific turn.
+    // If no affinities changed, leave this object completely empty: {}
+    // Example format: {"Diamond City": 10, "Sanctuary Hills": 100}
   },
-  "key_event": "<string briefly summarizing any major plot milestone that just occurred, or null if nothing major happened>"
+  "key_event": "<string briefly summarizing any major plot milestone, newly discovered location, NPC names met, or critical secrets learned in this turn, or null if nothing noteworthy happened>"
 }`;
 
 const STARTING_SCENARIOS = [
@@ -172,7 +151,7 @@ app.post('/api/chat', async (req, res) => {
       model: 'grok-4.5',
       messages: messages,
       temperature: 0.85, 
-      max_tokens: 1000, 
+      max_tokens: 2000, 
       response_format: { type: "json_object" }
     });
 
