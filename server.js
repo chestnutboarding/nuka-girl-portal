@@ -172,7 +172,7 @@ app.post('/api/chat', async (req, res) => {
       model: 'grok-4.5',
       messages: messages,
       temperature: 0.85, 
-      max_tokens: 600, 
+      max_tokens: 1000, 
       response_format: { type: "json_object" }
     });
 
