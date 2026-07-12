@@ -319,6 +319,12 @@
                               placeholder="What does the Mysterious Stranger do or say?"
                               onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
                     
+                    <button onclick="undoLastTurn()" 
+                            class="restart-btn px-3 md:px-4 font-bold text-base md:text-lg flex items-center justify-center" 
+                            title="Delete last turn and rewind state">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+
                     <button onclick="continueStory()" 
                             class="fallout-btn px-3 md:px-4 font-bold text-base md:text-lg flex items-center justify-center" title="Let Nuka-Girl continue">
                         <i class="fa-solid fa-forward-step"></i>
@@ -357,6 +363,7 @@
         let currentFame = 12;
         let currentTrust = 15;
         let isProcessing = false;
+        let stateHistory = []; // Tracks metrics history for clean undo rewinds
 
         const majorFactions = ["Brotherhood of Steel", "The Railroad", "Minutemen", "The Institute"];
 
@@ -387,6 +394,18 @@
             "Spectacle Island": 0
         };
 
+        // --- STATE SNAPSHOT HELPER ---
+        function captureStateSnapshot() {
+            stateHistory.push({
+                memoryBank: [...memoryBank],
+                currentTrust: currentTrust,
+                currentFame: currentFame,
+                factions: JSON.parse(JSON.stringify(factions)),
+                mentalState: document.getElementById('mental-state').textContent,
+                scenarioTitle: document.getElementById('scenario-title').textContent
+            });
+        }
+
         // --- CHROMEBOOK LOCAL STORAGE SAVE & LOAD ---
         function saveGameLocally() {
             const gameState = {
@@ -395,6 +414,7 @@
                 currentTrust,
                 currentFame,
                 factions,
+                stateHistory,
                 mentalState: document.getElementById('mental-state').textContent,
                 scenarioTitle: document.getElementById('scenario-title').textContent
             };
@@ -413,6 +433,7 @@
                 const data = JSON.parse(saved);
                 chatHistory = data.chatHistory || [];
                 memoryBank = data.memoryBank || [];
+                stateHistory = data.stateHistory || [];
                 currentTrust = data.currentTrust !== undefined ? data.currentTrust : 15;
                 currentFame = data.currentFame !== undefined ? data.currentFame : 12;
                 if (data.factions) factions = data.factions;
@@ -598,6 +619,8 @@
         }
 
         function handleAIResponse(aiData) {
+            captureStateSnapshot(); // Snapshot metrics before mutations occur
+
             pushToHistory('assistant', aiData.narrative);
             const displayReply = processActions(aiData.narrative);
             addMessage('jane', displayReply, aiData.internal_thoughts);
@@ -641,6 +664,40 @@
             saveGameLocally(); // Auto-save after every AI response
         }
 
+        // --- UNDO / REWIND FUNCTION ---
+        function undoLastTurn() {
+            if (isProcessing) return;
+            if (chatHistory.length === 0 || stateHistory.length === 0) {
+                showToast("CANNOT REWIND", "No previous turns available in memory.", true);
+                return;
+            }
+
+            if (chatHistory[chatHistory.length - 1].role === 'assistant') {
+                chatHistory.pop();
+            }
+            if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
+                chatHistory.pop();
+            }
+
+            const container = document.getElementById('chat-container');
+            const messages = container.getElementsByClassName('message');
+            if (messages.length > 0) container.removeChild(messages[messages.length - 1]);
+            if (messages.length > 0) container.removeChild(messages[messages.length - 1]);
+
+            const previousState = stateHistory.pop();
+            memoryBank = previousState.memoryBank;
+            currentTrust = previousState.currentTrust;
+            currentFame = previousState.currentFame;
+            factions = previousState.factions;
+
+            document.getElementById('mental-state').textContent = previousState.mentalState;
+            updateStatus(previousState.scenarioTitle);
+
+            saveGameLocally();
+            showToast("STORY REWOUND", "Last turn deleted. Stats and memories restored.");
+        }
+        // ------------------------------
+
         async function sendMessage() {
             const input = document.getElementById('user-input');
             const rawText = input.value.trim();
@@ -659,7 +716,6 @@
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
 
-            // Trim to send only the last 15 messages to save input tokens
             const tokenSavingHistory = chatHistory.slice(-15);
 
             try {
@@ -717,7 +773,6 @@
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
 
-            // Trim to send only the last 15 messages to save input tokens
             const tokenSavingHistory = chatHistory.slice(-15);
 
             try {
@@ -769,6 +824,7 @@
             document.getElementById('chat-container').innerHTML = '';
             chatHistory = [];
             memoryBank = [];
+            stateHistory = [];
             currentFame = 12;
             currentTrust = 15;
             
@@ -833,7 +889,6 @@
 
         window.onload = () => {
             handleResponsiveLayout();
-            // Automatically attempt to load saved game from Chromebook
             if (!loadGameLocally()) {
                 updateStatus();
             }
