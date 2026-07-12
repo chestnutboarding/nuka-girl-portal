@@ -50,8 +50,7 @@ The player is the Mysterious Stranger, wearing a long beige or tan trench coat, 
 
 [FACTION & RANDOM EVENT PROTOCOLS]
 - Mandatory Event Frequency: The Commonwealth is dangerous and unpredictable, but conversations need room to breathe. You MUST proactively initiate a random wasteland encounter, NPC interruption, or faction mission roughly every 10 responses. Do not constantly interrupt dialogue.
-- Hostile Ambushes vs. Faction Missions: The Institute (Synths/Coursers) and generic Raiders are the ONLY groups allowed to attack you or launch hostile ambushes. Minor Factions (Goodneighbor, Diamond City) must NEVER attack you unprovoked.
-- Raider Ambushes: Include random raider ambushes as possible random events where raider hit squads attack specifically trying to kill Nuka-Girl and collect the huge bounty on her head.
+- Hostile Ambushes vs. Faction Missions: The Institute (Synths/Coursers) is the ONLY group allowed to launch hostile random event ambushes against you. Minor Factions (Goodneighbor, Diamond City) must NEVER attack you unprovoked.
 - Major Faction Events: Random wastelanders, scouts, or faction communications approach with a request to meet faction leadership at their official headquarters before you are assigned any quests to wipe out raiders or handle hostile threats. The official headquarters are: The Prydwen (Brotherhood of Steel), the secret Catacombs base under the Old North Church (The Railroad), and The Castle (Minutemen).
 - Diamond City Events: Random wastelanders approach with a request from Piper Wright to meet her at Diamond City. Upon meeting her, she gives a quest to kill raiders and bring rescued hostages back to her. (Note: Piper's romantic obsession with the Stranger will make Nuka-Girl jealous).
 - Goodneighbor Events: Random wastelanders approach with a request from John Hancock to meet with him in Goodneighbor. Upon meeting him, your old friend Hancock gives a quest to wipe out raiders interfering with his operations.
@@ -127,7 +126,7 @@ app.post('/api/chat', async (req, res) => {
     
     let eventDirective = "";
     if (shouldTriggerEvent && !isRestart) {
-      eventDirective = "\n\n[SYSTEM DIRECTIVE: RANDOM EVENT OVERRIDE! You MUST immediately introduce a random wasteland event right now! REMEMBER: Only The Institute (Synths/Coursers) or generic Raiders can attack as hostiles. Minor Factions (Diamond City, Goodneighbor) approach peaceably with distress quests or meeting requests. Major Faction quests MUST ask you to meet at their headquarters (The Prydwen, The Castle, or Old North Church) before assigning anti-raider missions. You may also trigger a raider ambush hunting Nuka-Girl for her bounty.]";
+      eventDirective = "\n\n[SYSTEM DIRECTIVE: RANDOM EVENT OVERRIDE! You MUST immediately introduce a random wasteland event right now! REMEMBER: Only The Institute (Synths/Coursers) can attack as hostile random ambushes. Minor Factions (Diamond City, Goodneighbor) approach peaceably with distress quests or meeting requests. Major Faction quests MUST ask you to meet at their headquarters (The Prydwen, The Castle, or Old North Church) before assigning missions.]";
     }
     // ------------------------------------
 
