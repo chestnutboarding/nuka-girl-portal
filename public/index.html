@@ -360,7 +360,6 @@
 
         const majorFactions = ["Brotherhood of Steel", "The Railroad", "Minutemen", "The Institute"];
 
-        // Updated Faction hierarchy: Major Factions -> Goodneighbor & Diamond City -> Settlements (The Castle removed)
         let factions = {
             "Brotherhood of Steel": 10,
             "The Railroad": 15,
@@ -387,6 +386,57 @@
             "Covenant": 0,
             "Spectacle Island": 0
         };
+
+        // --- CHROMEBOOK LOCAL STORAGE SAVE & LOAD ---
+        function saveGameLocally() {
+            const gameState = {
+                chatHistory,
+                memoryBank,
+                currentTrust,
+                currentFame,
+                factions,
+                mentalState: document.getElementById('mental-state').textContent,
+                scenarioTitle: document.getElementById('scenario-title').textContent
+            };
+            try {
+                localStorage.setItem('nukaGirlSaveData', JSON.stringify(gameState));
+            } catch (e) {
+                console.error("Could not save to localStorage:", e);
+            }
+        }
+
+        function loadGameLocally() {
+            const saved = localStorage.getItem('nukaGirlSaveData');
+            if (!saved) return false;
+            
+            try {
+                const data = JSON.parse(saved);
+                chatHistory = data.chatHistory || [];
+                memoryBank = data.memoryBank || [];
+                currentTrust = data.currentTrust !== undefined ? data.currentTrust : 15;
+                currentFame = data.currentFame !== undefined ? data.currentFame : 12;
+                if (data.factions) factions = data.factions;
+                
+                updateStatus(data.scenarioTitle || 'COMMONWEALTH');
+                if (data.mentalState) document.getElementById('mental-state').textContent = data.mentalState;
+                
+                const container = document.getElementById('chat-container');
+                container.innerHTML = '';
+                if (chatHistory.length === 0) {
+                    container.innerHTML = `<div class="chat-welcome flex items-center justify-center h-full"><div class="text-center"><i class="fa-solid fa-radiation text-4xl mb-2 block"></i><p>Press RESTART to begin a new unique scenario</p></div></div>`;
+                } else {
+                    chatHistory.forEach(msg => {
+                        const display = processActions(msg.content);
+                        addMessage(msg.role === 'user' ? 'user' : 'jane', display);
+                    });
+                }
+                return true;
+            } catch (e) {
+                console.error("Failed to load local save:", e);
+                return false;
+            }
+        }
+        // --------------------------------------------
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -461,6 +511,7 @@
         }
 
         function processActions(text) {
+            if (!text) return '';
             let processed = text.replace(/\*([^\*]+)\*/g, '<span class="action-text">* $1 *</span>');
             processed = processed.replace(/_([^_]+)_/g, '<i>$1</i>');
             return processed;
@@ -566,7 +617,6 @@
                             showToast("AFFINITY DECREASED", `${factionName} affinity dropped to ${factions[factionName]}% (${shift}%)`);
                         }
                         
-                        // Follower unlocking toasts removed
                         if (oldAffinity < 100 && factions[factionName] >= 100) {
                             if (factionName === "The Institute") {
                                 showToast("INSTITUTE CONTROLLED", `You took over The Institute! Leadership secured!`, true);
@@ -588,6 +638,7 @@
             }
 
             updateStatus();
+            saveGameLocally(); // Auto-save after every AI response
         }
 
         async function sendMessage() {
@@ -608,18 +659,25 @@
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
 
+            // Trim to send only the last 15 messages to save input tokens
+            const tokenSavingHistory = chatHistory.slice(-15);
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        history: chatHistory, 
+                        history: tokenSavingHistory, 
                         isRestart: false,
                         currentTrust, currentFame,
                         currentMentalState: document.getElementById('mental-state').textContent,
                         memoryBank, factions
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`Server HTTP Error ${response.status}: ${response.statusText}`);
+                }
 
                 const data = await response.json();
                 thinking.remove();
@@ -630,11 +688,19 @@
                     return;
                 }
 
-                handleAIResponse(JSON.parse(data.reply.content));
+                let parsedContent;
+                try {
+                    parsedContent = JSON.parse(data.reply.content);
+                } catch (parseErr) {
+                    console.error("Raw AI Output that failed to parse:", data.reply.content);
+                    throw new Error("AI response was cut off by token limits or malformed.");
+                }
+
+                handleAIResponse(parsedContent);
             } catch (error) {
                 console.error(error);
                 thinking.remove();
-                addMessage('jane', 'Connection error.');
+                addMessage('jane', `[System Error]: ${error.message || 'Connection error.'}`);
             }
             isProcessing = false;
         }
@@ -651,18 +717,25 @@
             container.appendChild(thinking);
             container.scrollTop = container.scrollHeight;
 
+            // Trim to send only the last 15 messages to save input tokens
+            const tokenSavingHistory = chatHistory.slice(-15);
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        history: chatHistory, 
+                        history: tokenSavingHistory, 
                         isRestart: false,
                         currentTrust, currentFame,
                         currentMentalState: document.getElementById('mental-state').textContent,
                         memoryBank, factions
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`Server HTTP Error ${response.status}: ${response.statusText}`);
+                }
 
                 const data = await response.json();
                 thinking.remove();
@@ -673,11 +746,19 @@
                     return;
                 }
 
-                handleAIResponse(JSON.parse(data.reply.content));
+                let parsedContent;
+                try {
+                    parsedContent = JSON.parse(data.reply.content);
+                } catch (parseErr) {
+                    console.error("Raw AI Output that failed to parse:", data.reply.content);
+                    throw new Error("AI response was cut off by token limits or malformed.");
+                }
+
+                handleAIResponse(parsedContent);
             } catch (error) {
                 console.error(error);
                 thinking.remove();
-                addMessage('jane', 'Connection error.');
+                addMessage('jane', `[System Error]: ${error.message || 'Connection error.'}`);
             }
             isProcessing = false;
         }
@@ -691,7 +772,6 @@
             currentFame = 12;
             currentTrust = 15;
             
-            // Updated reset (The Castle removed)
             factions = {
                 "Brotherhood of Steel": 10, "The Railroad": 15, "Minutemen": 20,
                 "The Institute": 0, "Goodneighbor": 15, "Diamond City": 20,
@@ -719,6 +799,10 @@
                     })
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`Server HTTP Error ${response.status}: ${response.statusText}`);
+                }
+
                 const data = await response.json();
                 container.innerHTML = '';
                 
@@ -728,18 +812,31 @@
                 }
                 
                 if (data.initialPrompt) pushToHistory('user', data.initialPrompt);
-                handleAIResponse(JSON.parse(data.reply.content));
+                
+                let parsedContent;
+                try {
+                    parsedContent = JSON.parse(data.reply.content);
+                } catch (parseErr) {
+                    console.error("Raw AI Output that failed to parse:", data.reply.content);
+                    throw new Error("AI response was cut off by token limits or malformed.");
+                }
+
+                handleAIResponse(parsedContent);
                 updateStatus('NEW LOCATION');
+                saveGameLocally(); // Save the fresh starting state
             } catch (error) {
                 console.error(error);
                 container.innerHTML = '';
-                addMessage('jane', 'Failed to start new scenario.');
+                addMessage('jane', `[System Error]: ${error.message || 'Failed to start new scenario.'}`);
             }
         }
 
         window.onload = () => {
-            updateStatus();
             handleResponsiveLayout();
+            // Automatically attempt to load saved game from Chromebook
+            if (!loadGameLocally()) {
+                updateStatus();
+            }
         };
     </script>
 </body>
