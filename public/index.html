@@ -640,7 +640,12 @@
                 showToast("MEMORY LOGGED", aiData.key_event);
             }
 
-            updateStatus();
+            if (aiData.location) {
+                updateStatus(aiData.location.toUpperCase());
+            } else {
+                updateStatus();
+            }
+
             saveGameLocally(); // Auto-save after every AI response
         }
 
@@ -856,7 +861,11 @@
                 }
 
                 handleAIResponse(parsedContent);
-                updateStatus('NEW LOCATION');
+                if (parsedContent.location) {
+                    updateStatus(parsedContent.location.toUpperCase());
+                } else {
+                    updateStatus('COMMONWEALTH');
+                }
                 saveGameLocally(); // Save the fresh starting state
             } catch (error) {
                 console.error(error);
