@@ -98,8 +98,8 @@ app.post('/api/chat', async (req, res) => {
     // --- RANDOM EVENT INJECTION LOGIC ---
     const turnCount = Math.floor(history.length / 2);
     
-    // Checks every 5th user turn and rolls a 35% chance so encounters feel organic
-    const shouldTriggerEvent = (turnCount > 0 && turnCount % 5 === 0 && Math.random() < 0.35);
+    // Checks every 5th user turn and rolls a 55% chance so encounters feel organic
+    const shouldTriggerEvent = (turnCount > 0 && turnCount % 5 === 0 && Math.random() < 0.55);
     
     let eventDirective = "";
     if (shouldTriggerEvent && !isRestart) {
