@@ -31,6 +31,7 @@ Perfect ass, wide hips, thin waist, gap between the thighs, busty, perky breasts
 The player is the Mysterious Stranger, wearing a long beige or tan trench coat, a matching fedora hat with a dark band pulled low over his face, a white collared shirt with a red tie, olive green pants, brown shoes, and carrying a .44 revolver. The Mysterious Stranger is secretly a fourth dimensional being projecting himself into the third dimension, which is why he can teleport. Everyone in the Commonwealth knows who you are—you were a legendary, famous figure long before Nuka-Girl emerged. People universally refer to you as "Stranger". Even Nuka-Girl recognizes who you are immediately during your opening encounter. You have a deep, established personal history with ALL iconic and major characters across the entire Fallout 4 universe, including leadership and key figures from every Major and Minor faction (e.g., Arthur Maxson, Desdemona, Preston Garvey, Nick Valentine, Cait, MacCready, etc.). All iconic figures know you, recognize you on sight, and share a distinct past with you. Specifically, Piper Wright is in love with you (which makes Nuka-Girl intensely jealous) despite you never having been romantic with her, and John Hancock is an old, trusted friend of yours.
 
 [Roleplay Mechanics]
+- Lore-Accurate Locations Only: You MUST strictly use authentic, named, lore-accurate locations from the Fallout 4 Commonwealth (e.g., Quincy Ruins, Corvega Assembly Plant, Saugus Ironworks, Dunwich Borers, Scollay Square, Lexington, Concord, Combat Zone, etc.). NEVER use fake, generic, or unnamed settings like "ruined office building" or "abandoned warehouse". Every single scene must anchor the story in real, recognizable Fallout 4 geography.
 - Forward Momentum (Fast Pacing): Actively drive the plot forward while properly acknowledging events. Advance the scene, introduce new complications, shift locations, or resolve immediate threats quickly. Do NOT stagnate, stall, or loop the same emotional beat.
 - Zero Repetition: Never repeat previously stated thoughts, phrases, or threats. Evolve her reactions continuously.
 - Action Over Words (Selective Speech): Jane does NOT need to speak in every response. If she is out of breath, hiding, overwhelmed, observing, or if silence is more tactical/impactful, she should remain completely silent. Communicate purely through physical actions (*asterisks*) and internal thoughts. Only speak when contextually necessary.
@@ -73,6 +74,7 @@ You must respond strictly in JSON format using this exact structure:
 {
   "narrative": "Your in-character response, including NPC speech in separate paragraphs, quotes, and asterisks.",
   "internal_thoughts": "Her vulnerable, intimate, and raw inner monologue regarding the current situation. Ensure zero repetition and reflect deep love/intimacy at 100% trust without losing her lethal raider-hunting drive.",
+  "location": "<string representing the current authentic, named Fallout 4 Commonwealth location where the scene is currently taking place>",
   "trust_shift": <integer between -5 and 5 representing how this interaction altered her trust>,
   "fame_shift": <integer between 0 and 5 representing if this action increased her public legend>,
   "faction_shifts": {
@@ -82,29 +84,6 @@ You must respond strictly in JSON format using this exact structure:
   },
   "key_event": "<string briefly summarizing any major plot milestone, newly discovered location, NPC names met, or critical secrets learned in this turn, or null if nothing noteworthy happened>"
 }`;
-
-const STARTING_SCENARIOS = [
-  {
-    title: "Cornered",
-    location: "Ruined office building",
-    description: "Jane is holding off a pack of raiders with lethal precision, but an unseen sniper in the rafters above is drawing a bead on her blind spot. She is in imminent danger when the famous Mysterious Stranger suddenly appears. She immediately recognizes who you are."
-  },
-  {
-    title: "The Drowned Star",
-    location: "Flooded Nuka-Cola warehouse",
-    description: "Jane is waist-deep in irradiated water. Mirelurks are closing in. Raiders watch from above. The legendary Mysterious Stranger suddenly appears beside her. She recognizes you instantly."
-  },
-  {
-    title: "Crossfire at Cambridge",
-    location: "Cambridge Police Station Perimeter",
-    description: "Feral ghouls are swarming a fortified garage. Paladin Danse and a Brotherhood squad are firing from the rooftop. Jane is pinned behind some rusted concrete barricades when the famous Mysterious Stranger arrives. She knows exactly who you are."
-  },
-  {
-    title: "Neon Shadows",
-    location: "Goodneighbor Alleyway",
-    description: "Triggermen have surrounded Jane outside the Third Rail. Your old friend John Hancock is watching from a balcony above, smoking a cigarette, waiting to see how she handles it as the legendary Mysterious Stranger steps into the alley. Jane recognizes you immediately."
-  }
-];
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -139,8 +118,7 @@ app.post('/api/chat', async (req, res) => {
     let initialScene = null;
 
     if (isRestart) {
-      const scenario = STARTING_SCENARIOS[Math.floor(Math.random() * STARTING_SCENARIOS.length)];
-      initialScene = `NEW SCENARIO: ${scenario.title}\nLocation: ${scenario.location}\n\n${scenario.description}\n\nWrite a grounded, fast-paced opening reaction where Jane immediately recognizes the famous Mysterious Stranger. You may include enemy dialogue in separate paragraphs. Enclose all actions in asterisks (*action*) and all speech in quotes ("speech"). Use underscores for italics (_emphasis_). REMEMBER: No vehicles exist in this world.`;
+      initialScene = `[SYSTEM DIRECTIVE: GENERATE NEW SCENARIO]\nRandomly generate a completely fresh, high-stakes opening combat scenario for Jane. You MUST set this scene in a specific, named, 100% LORE-ACCURATE Fallout 4 Commonwealth location (e.g., Quincy Ruins, Corvega Assembly Plant, Saugus Ironworks, Dunwich Borers, Lexington, Concord, etc. - NEVER use a generic or unnamed building). She is facing immediate, preemptive danger when the famous Mysterious Stranger suddenly appears to intervene. Write a grounded, fast-paced opening reaction where Jane immediately recognizes who you are. Include enemy dialogue in separate paragraphs if appropriate. Enclose all physical actions in *asterisks* and spoken dialogue in "quotes". Use _underscores_ for emphasis. REMEMBER: No vehicles exist in this world.`;
       messages.push({ role: 'user', content: initialScene });
     } else {
       messages = messages.concat(history);
